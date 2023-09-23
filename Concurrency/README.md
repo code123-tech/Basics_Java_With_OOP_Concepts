@@ -14,22 +14,24 @@
     Now, developer need not to care of managing multiple threads, they can create a pool of x number of threads, and executor
     responsible for task execution by taking any availble thread from that pool.
     
-    import java.util.concurrent.ExecutorService;
-    import java.util.concurrent.Executors;
-    
-    class MyRunnable implements Runnable {
-        public void run() {
-            System.out.println("This is a new thread.");
-        }
+```Java
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+class MyRunnable implements Runnable {
+    public void run() {
+        System.out.println("This is a new thread.");
     }
-    
-    public class Main {
-        public static void main(String[] args) {
-            ExecutorService executor = Executors.newFixedThreadPool(4);
-            executor.submit(new MyRunnable());
-            executor.shutdown();
-        }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        ExecutorService executor = Executors.newFixedThreadPool(4);
+        executor.submit(new MyRunnable());
+        executor.shutdown();
     }
+}
+```
 
 3. The Fork/Join Framework - introduced in Java 7.
 4. Completable Future - Introduced in Java 8.
