@@ -1,11 +1,29 @@
-<h5><u><i>Evolution of Concurrency in Java</i></u></h5>
+<h3><u><i>Evolution of Concurrency in Java</i></u></h3>
 
 1. First Java Introduced concepts of Thread in the earliest version of Java around 1.0
 
       
     Thread can be created using two ways
     - By extending Thread class
+```Java
+class MyThread implements Runnable{
+	public void run(){
+	// Task
+    }
+}
+MyThread nyThread = new MyThread();
+Thread t = new Thread(myThread);
+t.start();
+```
     - By implementing Runnable Interface
+```Java
+class MyThread extends Thread{
+	public void run(){}
+}
+MyThread t = new MyThread();
+t.start();
+```
+![Threading Creation](threading.png)
 
 2. The Executor Framework - introduced in Java 5.
     
