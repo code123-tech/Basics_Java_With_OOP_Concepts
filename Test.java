@@ -1,4 +1,4 @@
-package BasicsJava;
+package Serialization;
 
 abstract class A {
     private int x;

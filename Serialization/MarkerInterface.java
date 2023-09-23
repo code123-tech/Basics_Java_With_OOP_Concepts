@@ -1,4 +1,4 @@
-package BasicsJava;
+package Serialization;
 
 /**
  * Interfaces which does not contain any field, or methods are known as Marker Interface.

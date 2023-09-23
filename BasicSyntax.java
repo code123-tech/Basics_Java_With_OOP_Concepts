@@ -1,4 +1,4 @@
-package BasicsJava;
+package Serialization;
 
 class BasicSyntax{  // 1. class: A Blueprint for a real world instance/object
 

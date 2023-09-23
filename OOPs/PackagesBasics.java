@@ -1,8 +1,8 @@
-package BasicsJava.OOPs;
+package Serialization.OOPs;
 
-import BasicsJava.OOPs.utility.Singleton;
+import Serialization.OOPs.utility.Singleton;
 
-import static BasicsJava.OOPs.utility.Notification.publicMessage;
+import static Serialization.OOPs.utility.Notification.publicMessage;
 
 /**
  * Use Of Packages.

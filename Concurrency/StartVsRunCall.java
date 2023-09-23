@@ -1,7 +1,7 @@
-package Threading;
+package Concurrency;
 
 public class StartVsRunCall {
-    public static void main(String args[]) {
+    public static void main(String[] args) {
 
         //creating two threads for start and run method call
         Thread startThread = new Thread(new Task("start"));
@@ -12,16 +12,16 @@ public class StartVsRunCall {
 
     }
 
-    private static class Task implements Runnable{
-        private String caller;
+    private static class Task implements Runnable {
+        private final String caller;
 
-        public Task(String caller){
+        public Task(String caller) {
             this.caller = caller;
         }
 
         @Override
         public void run() {
-            System.out.println("Caller: "+ caller + " and code on this Thread is executed by : " + Thread.currentThread().getName());
+            System.out.println("Caller: " + caller + " and code on this Thread is executed by : " + Thread.currentThread().getName());
 
         }
     }

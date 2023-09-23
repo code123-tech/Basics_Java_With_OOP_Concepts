@@ -1,4 +1,4 @@
-package BasicsJava;
+package Serialization;
 
 import java.io.Externalizable;
 import java.io.IOException;

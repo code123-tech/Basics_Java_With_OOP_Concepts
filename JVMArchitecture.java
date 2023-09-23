@@ -1,4 +1,4 @@
-package BasicsJava;
+package Serialization;
 
 public class JVMArchitecture {
     public static void main(String[] args) {

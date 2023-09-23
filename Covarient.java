@@ -1,4 +1,4 @@
-package BasicsJava;
+package Serialization;
 
 /**
  * Covarient Return Type Feature is introduced after Java5.

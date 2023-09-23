@@ -1,4 +1,4 @@
-package BasicsJava;
+package Serialization;
 
 public interface DefaultAndStaticMethodInterfaceJava8 {
     default void show(){  // introduced in Java 8.

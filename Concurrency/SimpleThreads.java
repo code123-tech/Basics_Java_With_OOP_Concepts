@@ -1,6 +1,4 @@
-package BasicsJava.Threading;
-
-import java.util.concurrent.ExecutorService;
+package Concurrency;
 
 /**
  * Interview: https://javarevisited.blogspot.com/2014/07/top-50-java-multithreading-interview-questions-answers.html
@@ -17,7 +15,7 @@ public class SimpleThreads {
 
     private static class MessageLoop implements Runnable {
         public void run() {
-            String importantInfo[] = {
+            String[] importantInfo = {
                     "Mares eat oats",
                     "Does eat oats",
                     "Little lambs eat ivy",
@@ -38,7 +36,7 @@ public class SimpleThreads {
         }
     }
 
-    public static void main(String[] args) throws InterruptedException{
+    public static void main(String[] args) throws InterruptedException {
         // Delay, in milliseconds before
         // we interrupt MessageLoop
         // thread (default one hour).

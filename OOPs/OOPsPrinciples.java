@@ -1,4 +1,4 @@
-package BasicsJava.OOPs;
+package Serialization.OOPs;
 
 
 class Super {

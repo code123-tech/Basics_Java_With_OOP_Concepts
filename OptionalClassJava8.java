@@ -1,4 +1,4 @@
-package BasicsJava;
+package Serialization;
 
 /**
  * Read IT: https://stackify.com/optional-java/

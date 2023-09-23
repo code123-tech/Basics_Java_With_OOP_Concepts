@@ -1,4 +1,4 @@
-package BasicsJava.OOPs.utility;
+package Serialization.OOPs.utility;
 
 public class Notification {
 

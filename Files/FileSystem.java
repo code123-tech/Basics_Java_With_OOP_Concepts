@@ -1,4 +1,4 @@
-package BasicsJava.Files;
+package Serialization.Files;
 
 import java.io.IOException;
 import java.net.URI;
@@ -26,14 +26,14 @@ public class FileSystem {
         // two ways to reference a file, Using Path.of() method (Present FROM JDK11), Paths.get() method (was being used TILL JDK10).
 
         // Using Path.of(), My JDK Version is not supported.
-        // Path path = Path.of("C:/Users/swa80/OneDrive/Desktop/java/Learning/BasicsJava/Files/temp1.txt");
-        // Path path = Path.of("C:\\Users\\swa80\\OneDrive\\Desktop\\java\\Learning\\BasicsJava\\Files\\temp1.txt");
-        // Path path = Path.of("C:", "Users","swa80","OneDrive","Desktop", "java","Learning","BasicsJava","Files","temp1.txt");
-        // Path path = Path.of(new URI("file:///C:/Users/swa80/OneDrive/Desktop/java/Learning/BasicsJava/Files/temp1.txt"));
+        // Path path = Path.of("C:/Users/swa80/OneDrive/Desktop/java/Learning/Serialization/Files/temp1.txt");
+        // Path path = Path.of("C:\\Users\\swa80\\OneDrive\\Desktop\\java\\Learning\\Serialization\\Files\\temp1.txt");
+        // Path path = Path.of("C:", "Users","swa80","OneDrive","Desktop", "java","Learning","Serialization","Files","temp1.txt");
+        // Path path = Path.of(new URI("file:///C:/Users/swa80/OneDrive/Desktop/java/Learning/Serialization/Files/temp1.txt"));
 
         // My System has JDK 8, so Using Paths.get().
         // FROM JDK11, Paths.get() internally calls Path.of()
-        Path path1 = Paths.get("C:/Users/swa80/OneDrive/Desktop/java/Learning/BasicsJava/Files/temp1.txt");
+        Path path1 = Paths.get("C:/Users/swa80/OneDrive/Desktop/java/Learning/Serialization/Files/temp1.txt");
         Path path2 = Paths.get(new URI("file:///C:/Users/swa80/OneDrive/Desktop/java/Learning/Basics/Files/temp2.txt"));
         Path path3 = Paths.get(new URI("file:///C:/Users/swa80/OneDrive/Desktop/java/Learning/Basics/Files/temp3.txt"));
 

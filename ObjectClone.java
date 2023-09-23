@@ -1,4 +1,4 @@
-package BasicsJava;
+package Serialization;
 
 /**
  * See: https://www.youtube.com/watch?v=0_V-z6QcaWc&ab_channel=MarcusBiel

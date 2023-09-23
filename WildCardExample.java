@@ -1,4 +1,4 @@
-package BasicsJava;
+package Serialization;
 
 import java.util.ArrayList;
 

@@ -1,4 +1,4 @@
-package BasicsJava;
+package Serialization;
 
 /**
  * To free up the unused Objects from Memory, Garbage collector called the finalize method associated with the Object.
