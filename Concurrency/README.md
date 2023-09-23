@@ -23,7 +23,7 @@ class MyThread extends Thread{
 MyThread t = new MyThread();
 t.start();
 ```
-![Threading Creation](threading.png)
+![Threading Creation](./threading.png)
 
 2. The Executor Framework - introduced in Java 5.
     
