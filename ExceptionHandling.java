@@ -1,6 +1,5 @@
 package Serialization;
 
-import javax.xml.bind.JAXBException;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -87,15 +86,13 @@ public class ExceptionHandling {
                 e.printStackTrace();
             }catch (FileNotFoundException e){
                 e.printStackTrace();
-            }catch (JAXBException e){
-                e.printStackTrace();
             }
         */
 
         // Since IOException is Parent class of FileNotFoundException, so you will get an error,
         // FileNotFoundException is already caught.
     }
-    public static void foo() throws IOException, JAXBException, FileNotFoundException{
+    public static void foo() throws IOException, FileNotFoundException{
 
     }
 }

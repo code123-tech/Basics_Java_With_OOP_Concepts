@@ -50,6 +50,22 @@ public class Main {
     }
 }
 ```
+The main use I always seem to find for using a thread-pool is that is very nicely manages a very common problem: 
+producer-consumer. In this pattern, someone needs to constantly send work items (the producer) to be processed by someone 
+else (the consumers). The work items are obtained from some stream-like source, like a socket, a database, or a collection 
+of disk files, and needs multiple workers in order to be processed efficiently. The main components identifiable here are:
+`the producer: a thread that keeps posting jobs
+a queue where the jobs are posted
+the consumers: worker threads that take jobs from the queue and execute them`
+In addition to this, synchronization needs to be employed to make all this work correctly, since reading and writing to the 
+queue without synchronization can lead to corrupted and inconsistent data. Also, we need to make the system efficient, since 
+the consumers should not waste CPU cycles when there is nothing to do.
+Now this pattern is very common, but to implement it from scratch it takes a considerable effort, which is error-prone and 
+needs to be carefully reviewed.
+The solution is the thread pool (Uses ArrayBlocking Queue). It very conveniently manages the work queue, the consumer threads 
+and all the synchronization needed. All you need to do is play the role of the producer and feed the pool with tasks!
+
+(Reference of above paragraph from <a href="https://stackoverflow.com/questions/9717901/poc-proof-of-concept-of-threadpools-with-executors">Stackoverflow</a>)
 
 3. The Fork/Join Framework - introduced in Java 7.
 4. Completable Future - Introduced in Java 8.
