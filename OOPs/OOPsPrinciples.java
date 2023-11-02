@@ -66,7 +66,7 @@ public class OOPsPrinciples {
          * ex: class Base{public int value = 4}
          * class Sub extends Base{} // Sub class reference object can access Base class properties like value.
          * Every class in Java is inherited from Object class directly or Indirectly.
-         * Types: Single Inheritance, MultiLevel Inheritance, Hierarchial Inheritance (Multiple classes are inheriting single class) etc.
+         * Types: Single Inheritance, MultiLevel Inheritance, Hierarchical Inheritance (Multiple classes are inheriting single class) etc.
          * Multiple Inheritance is not allowed in Java, as subclass can not decide which super class method is called, if two same methods are in the super classes.
          * Hybrid Inheritance is also not allowed as it follows multiple inheritance
          * Diamond Problem is basically a Hybrid Inheritance.
