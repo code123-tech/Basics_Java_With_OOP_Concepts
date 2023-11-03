@@ -67,5 +67,19 @@ and all the synchronization needed. All you need to do is play the role of the p
 
 (Reference of above paragraph from <a href="https://stackoverflow.com/questions/9717901/poc-proof-of-concept-of-threadpools-with-executors">Stackoverflow</a>)
 
-3. The Fork/Join Framework - introduced in Java 7.
+3. _**The Fork/Join Framework - introduced in Java 7.**_
+- Fork/Join framework, based on `divide and conquer approach`, divides a large task using fork() operation, and then combine
+    the result of pending task using join() operation.
+- It enables degree of Parallelism by using `Divide and Conquer` and `Work Stealing` mechanisms.
+- For/Join Framework's heart is `ForkJoinPool` which uses Work Stealing mechanism. this pool has some worker threads, and a task
+    queue (tasks are submitted here). Every worker thread has work-stealing queue (Deque).
+    
+  ##### There are few things to be noted
+  1. ForkJoinPool itself does not divide the tasks or merge them, it is decided by programmers.
+  2. Programmers decide whether a task is needed to be divided or not.
+  
+  #### Parallel Algorithm with ForkJoinPool
+  1. Create `RecursiveTask`  (Just like in ExecutorService, Runnable/Callable task)
+  2. Submit above task to `ForkJoinPool`  (Submitting task to ExecutorService)
+
 4. Completable Future - Introduced in Java 8.
