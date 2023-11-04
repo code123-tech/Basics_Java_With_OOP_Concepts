@@ -1,6 +1,6 @@
 <h3><u><i>Evolution of Concurrency in Java</i></u></h3>
 
-1. First Java Introduced concepts of Thread in the earliest version of Java around 1.0
+1. **_First Java Introduced concepts of Thread in the earliest version of Java around 1.0_**
 
       
     Thread can be created using two ways
@@ -23,9 +23,17 @@ class MyThread extends Thread{
 MyThread t = new MyThread();
 t.start();
 ```
-![Threading Creation](./threading.png)
 
-2. The Executor Framework - introduced in Java 5.
+#### Note
+
+- JVM stack is private to its Thread, and each method call is stored in that private stack.
+- Stack makes entry in form of `Frames`. Frame is kind of wrapper to store local variables, local operand stacks, reference, dispatch actions.
+- Each thread has its own stack, and one thread can not access stack of another thread.
+[Read here More on MultiThreading in Java](https://medium.com/java-interview-revision-question-bank/everything-about-java-multithreading-be234f5ac119)
+
+![Threading Creation](threading.png)
+
+2. **_The Executor Framework - introduced in Java 5._**
     
     
     It introduced ThreadPoolExecutor, ExecutorService and provided higher level of abstraction using these.
@@ -71,7 +79,7 @@ and all the synchronization needed. All you need to do is play the role of the p
 - Fork/Join framework, based on `divide and conquer approach`, divides a large task using fork() operation, and then combine
     the result of pending task using join() operation.
 - It enables degree of Parallelism by using `Divide and Conquer` and `Work Stealing` mechanisms.
-- For/Join Framework's heart is `ForkJoinPool` which uses Work Stealing mechanism. this pool has some worker threads, and a task
+- Fork/Join Framework's heart is `ForkJoinPool` which uses Work Stealing mechanism. this pool has some worker threads, and a task
     queue (tasks are submitted here). Every worker thread has work-stealing queue (Deque).
     
   ##### There are few things to be noted
@@ -81,5 +89,25 @@ and all the synchronization needed. All you need to do is play the role of the p
   #### Parallel Algorithm with ForkJoinPool
   1. Create `RecursiveTask`  (Just like in ExecutorService, Runnable/Callable task)
   2. Submit above task to `ForkJoinPool`  (Submitting task to ExecutorService)
+  
+  #### Key Points
+  1. ForkJoinPool is one implementation of `ExecutorService`.
+  2. Task submitted to `ForkJoinPool` is `ForkJoinTask` or `RecursiveTask`.
+  3. In `ThreadPoolExecutor (ExecutorService)`, we submit multiple tasks, but in `ForkJoinPool` a large task is submitted, and rest
+    is taken care by framework.
+  4. ForkJoinTask has two main implementations: `RecursiveAction` and `RecursiveTask`.
+  5. RecursiveAction is just like `Runnable` which does not return any value.
+  6. RecursiveTask is just like `Callable` which return any value.
+  
+  #### ForJoinPool Internals
+  1. `ForkJoinPool` gets task from Non-ForJoinPool Client (Basically main thread) by calling `execute()`, `invoke()`, or `submit()`
+  2. `ForkJoinPool` maintains a `GlobalQueue` shared among all worker threads internally.
+  3. Each WorkerThread has its own Local queue, `WorkerQueue`/`WorkStealing Queue`, So that Maximum CPU Utilization can be done.
+  4. Now, Worker Thread picks task from three different Queues (Not only local queue)
+     1. GlobalQueue or SharedQueue
+     2. Local Work-Stealing Queue
+     3. Other Thread's Work-Stealing Queue
+  5. 
+- Check Out the Tutorial [here](https://medium.com/@cs.vivekgupta/overview-of-fork-join-framework-core-of-parallelism-in-java-35f4a4cc8c3b).
 
-4. Completable Future - Introduced in Java 8.
+4. **_Completable Future - Introduced in Java 8._**

@@ -11,7 +11,14 @@ public class ForkJoinSumComputationExample {
     public static void main(String[] args) {
         // 1. task creation
         RecursiveSumTask recursiveSumTask = new RecursiveSumTask(0, length, arr);
-//        ForkJoinPool
+        // 2. submit task to forkJoinPool
+        ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
+        long start = System.currentTimeMillis();
+        long sum = forkJoinPool.invoke(recursiveSumTask);
+        System.out.println("The sum is : "
+                + sum
+                + ", Time Taken by Parallel(Fork/Join) Execution: "
+                + (System.currentTimeMillis() - start) + " millis");
     }
 
     static class RecursiveSumTask extends RecursiveTask<Long> {
@@ -30,7 +37,7 @@ public class ForkJoinSumComputationExample {
         protected Long compute() {
             if(SEQUENTIAL_COMPUTE_THRESHOLD >= (endIndex  - startIndex)){
                 long sum = 0;
-                for(int i = startIndex; i <= endIndex; i++){
+                for(int i = startIndex; i < endIndex; i++){
                     sum += data[i];
                 }
                 return sum;
@@ -40,7 +47,7 @@ public class ForkJoinSumComputationExample {
             RecursiveSumTask right = new RecursiveSumTask(mid, endIndex, data);
             left.fork();
             long rightSum = right.compute();
-            return rightSum + left.join();
+            return rightSum + left.join();  // join is a blocking call, current thread waits until left task is not done.
         }
     }
     private static int[] largeArr() {
