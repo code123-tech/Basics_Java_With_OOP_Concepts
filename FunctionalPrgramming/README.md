@@ -69,5 +69,11 @@ Adder adder = (n1, n2) -> n1 + n2;
 4. Constructor Reference
 
 #### Method Reference
+- Another way of implementation of functional Interfaces.
+- Class::method  or ClassInstance::method
+
+#### Constructor Reference
+- Another way of implementation of functional Interfaces.
+- ClassName::new
 
 - [Read More about FP from here](https://medium.com/@cs.vivekgupta/java-functional-programming-179334150eb2)

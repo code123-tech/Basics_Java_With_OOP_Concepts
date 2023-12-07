@@ -15,6 +15,8 @@ package Serialization;
  ** Comparable provides single ordering sequence (we can sort the collection on the basis of a single element such as
  *   id, name, and price.), but Comparator provides multiple ordering sequence (we can sort the collection on the basis
  *   of multiple elements such as id, name,` price, etc.)
+ *
+ *   [Comparable v/s Comparator] https://medium.com/@cs.vivekgupta/java-functional-programming-179334150eb2 (At the end of this article)
  */
 
 import java.util.Arrays;
@@ -36,6 +38,14 @@ class Student implements Comparable<Student>{
                 '}';
     }
 
+    public float getMark(){
+        return this.mark;
+    }
+
+    public int getAge(){
+        return this.age;
+    }
+
     @Override
     public int compareTo(Student o) {
         return (this.mark != o.mark) ? (int)(this.mark - o.mark): this.age - o.age;
@@ -52,12 +62,7 @@ public class Comparison {
         System.out.println(Arrays.toString(students));
 
         // Using Comparator operator.
-        Arrays.sort(students, new Comparator<Student>() {
-            @Override
-            public int compare(Student o1, Student o2) {
-                return o1.age - o2.age;
-            }
-        });
+        Arrays.sort(students, Comparator.comparing(Student::getAge));
 
         System.out.println(Arrays.toString(students)); // result based on age sorting, as we have overriden the comparator.
 
