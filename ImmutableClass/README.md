@@ -162,5 +162,5 @@ public class FinalField{
 - **_Caching:_** Perfect for caching, as their states can not be changed.
 
 #### reference
-1. [Java Immutable Class](https://www.journaldev.com/129/how-to-create-immutable-class-in-java)
+1. [Java Immutable Class](https://medium.com/@cs.vivekgupta/everything-about-immutable-classes-in-java-9f5fe8e6ca54)
 
