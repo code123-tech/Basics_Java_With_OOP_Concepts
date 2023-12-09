@@ -161,3 +161,6 @@ public class FinalField{
 - Ans: Because, Immutable classes are **_Thread Safe_** which means they can be used in a multi-threaded environment without any synchronization.
 - **_Caching:_** Perfect for caching, as their states can not be changed.
 
+#### reference
+1. [Java Immutable Class](https://www.journaldev.com/129/how-to-create-immutable-class-in-java)
+
