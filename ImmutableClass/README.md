@@ -156,4 +156,8 @@ public class FinalField{
  */
 ```
 
+#### Why should we care about Immutable classes?
+- As Immutable classes are causing a lot of issue for Heap memory, so why should we care about it?
+- Ans: Because, Immutable classes are **_Thread Safe_** which means they can be used in a multi-threaded environment without any synchronization.
+- **_Caching:_** Perfect for caching, as their states can not be changed.
 
