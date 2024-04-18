@@ -31,4 +31,7 @@
     - From JDK 9, this feature is default enabled. If you want to disable this feature, then you can use `-XX:-CompactStrings` in VM args 
     while running Java program.
 
-- 
+- `JPMS (Java Programming Module System)`: A new feature introduced in Java 9 which was taken into action a long back in 2005, and released with Java 9 in 2017.
+    - This is very powerful change which introduces `Module Programming` in Java. Module is a collection of packages
+    which are related to each other.
+    - 
