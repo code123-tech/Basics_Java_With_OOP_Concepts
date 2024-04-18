@@ -44,7 +44,7 @@ public class CollectionFactoryMethods {
     }
 
     private static void unmodifiableListCreationTillJava8() {
-        // Since there was no of method in Java 8, so creating list with as method
+        // Since there was no 'of' method in Java 8, so creating list with as method
         List<String> mutableList = new ArrayList<>(Arrays.asList("A", "B", "C")); // of method creates mutable list
         List<String> immutableList = Collections.unmodifiableList(mutableList);
 
