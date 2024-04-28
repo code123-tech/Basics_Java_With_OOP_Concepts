@@ -33,5 +33,26 @@
 
 - `JPMS (Java Programming Module System)`: A new feature introduced in Java 9 which was taken into action a long back in 2005, and released with Java 9 in 2017.
     - This is very powerful change which introduces `Module Programming` in Java. Module is a collection of packages
-    which are related to each other.
+      which are related to each other as well as some resources (media files, XML files etc).
+    - Module is powerful concept than jar files, as it combines all the required packages into a single module. Now, where to put all the 
+      require packages inside that module. For that there is a special file called `module-info.java` which tells Java to include all the 
+      requested Java packages in the module.
+    -  `module-info.java` file can include which is also known as module descriptor file:
+      - `Name - ` name of our module, there are certain rules for defining it:
+        - It should be unique. 
+        - Two approaches can be followed: `Project-style` and `Reverse-DNS` for naming conventions. 
+          but it is recommended to use `reverse-DNS` approach, just as a package name follows. 
+        - As Module is group of related packages, so name can be related to package names.
+        - It allows dots, not dashes in the name.
+        - can see more on [here](https://blog.joda.org/2017/04/java-se-9-jpms-module-naming.html)
+      - `Dependencies - `It includes dependencies needed by the module. It can be of two types:
+        - `requires` - It is used to include the required module in the current module.
+        - `exports` - It is used to export the packages (make packages public) to other modules. If we don't export a package
+          of a module, It becomes `Hidden package` for the module. `Export of a package can be done specific package of other 
+          module using **to** keyword.`
+      - `Services - ` Module can help to provide services to other modules as well as they can consume services from other
+        modules. This is done using `provides` and `uses` keywords. [Self Explanatory keywords]
+      - `Reflections - ` It is used to access the private members of the module. It is done using `opens` keyword.
+    - Module System Design Principles - Check some [here](https://openjdk.org/jeps/200)
     - 
+      
