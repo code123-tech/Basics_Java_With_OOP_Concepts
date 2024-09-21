@@ -7,9 +7,11 @@ package Extras_Interview.Some_Methods;
  * and it would be willing to schedule back as soon as possible. The scheduler is free to ignore this hint.
  * So, we can say behaviour of yield() method is not guaranteed.
  * And finally, as per official doc itself, It is rarely to use yield() method.
+ * Can read this: <a href="https://stackoverflow.com/a/6979859/13318793">See on use</a>
  */
 public class Thread_Yield {
     public static void main(String[] args) {
+        System.out.println("Number of thread: " + Runtime.getRuntime().availableProcessors());
         System.out.println("----TwoThreadsOfSamePriority----");
         TwoThreadsOfSamePriority();
 
@@ -33,11 +35,10 @@ public class Thread_Yield {
             }
         };
 
-        Thread t1 = new Thread(r);
-        Thread t2 = new Thread(r);
-
-        t1.start();
-        t2.start();
+        for(int i = 0; i < 100; i++){
+            Thread t = new Thread(r);
+            t.start();
+        }
     }
 
     private static void TwoThreadsOfDifferentPriority() {
