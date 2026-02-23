@@ -38,3 +38,18 @@ get killed by the Docker OOM (Out of Memory) Killer.
 
 **The Java 10 Solution:** The JVM was made "Container Aware." It now correctly identifies the CPU and RAM limits set 
 by Docker/Kubernetes.
+
+
+##### Questions
+- Why `var name = null;` is not allowed? (Because the type cannot be inferred from null)
+- Can you use `var` for method parameters? (No, it's only for local variables)
+- What happens if you try to use `var` without initializing the variable? (It will cause a compilation error because the type cannot be inferred)
+- How does the G1 Garbage Collector improve performance in Java 10? (By making the Full GC cycle parallel, reducing pause times for large heaps)
+- What is the benefit of container awareness in Java 10? (It allows the JVM to correctly identify and respect the resource limits set by Docker/Kubernetes, preventing OOM errors)
+- Can you use `var` for class fields? (No, `var` is only for local variables within methods)
+- What is the default garbage collector in Java 10? (G1 Garbage Collector)
+- How does Java 10's container awareness affect memory management? (It allows the JVM to adjust its memory usage based on the limits of the container, preventing it from trying to use more memory than is available)
+- What happens if you try to use `var` for a variable that is initialized with a lambda expression? (The type will be inferred as the functional interface type of the lambda expression)
+- Can you use `var` for a variable that is initialized with a method reference? (Yes, the type will be inferred as the functional interface type of the method reference)
+- What happens if you try to use `var` for a variable that is initialized with an anonymous class? (The type will be inferred as the anonymous class type)
+- Can you use `var` for a variable that is initialized with a primitive type? (Yes, the type will be inferred as the corresponding wrapper class type, e.g., `int` will be inferred as `Integer`)
