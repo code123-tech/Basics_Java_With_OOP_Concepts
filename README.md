@@ -17,3 +17,19 @@ Basic Concepts for Java, and Object-Oriented Programming
 * For Serialization Related: go to: [Serialization](./Java8/Serialization)
 
 #### Java 9 Features - [Java9 Features](./Java9)
+* Module Exercise: go to [JavaModuleExercise](./Java9/JavaModuleExercise)
+* Changes in Java 9: go to [Changes in Java 9](./Java9/Changes.java)
+
+#### Java 10 Features - [Java10 Features](./Java10)
+
+#### Java 11 Features - [Java10 Features](./Java11)
+
+#### Java 12 Features - [Java10 Features](./Java12)
+
+#### Java 13 Features - [Java10 Features](./Java13)
+
+#### Java 14 Features - [Java10 Features](./Java14)
+
+#### Java 15 Features - [Java10 Features](./Java15)
+
+#### Java 16 Features - [Java10 Features](./Java16)
