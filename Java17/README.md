@@ -1,6 +1,6 @@
 # Java 17 — New Features (Index)
 
-- **Sealed Classes (J   EP 409)**: Create "closed" class/interface hierarchies with `sealed`, `permits`, `final`, `non-sealed`.
+- **Sealed Classes (JEP 409)**: Create "closed" class/interface hierarchies with `sealed`, `permits`, `final`, `non-sealed`.
 - **Pattern Matching for `switch` (Preview) (JEP 406)**: Use type patterns inside `switch` (preview in 17; finalized later).
 - **Enhanced Pseudo-Random Number Generators (JEP 356)**: New `RandomGenerator` interfaces + multiple PRNG algorithms.
 - **Strong Encapsulation of JDK Internals (JEP 403)**: Most internal JDK APIs are strongly encapsulated (illegal reflective access becomes harder).

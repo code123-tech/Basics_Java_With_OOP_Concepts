@@ -9,5 +9,7 @@ public class Main {
         System.out.println("====================================");
         UnderstandingSealedClasses.doExercise();
         System.out.println("====================================");
+        UnderstandingSwitchPatternMatching.doExercise();
+        System.out.println("====================================");
     }
 }
