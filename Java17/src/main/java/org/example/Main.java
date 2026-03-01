@@ -11,5 +11,6 @@ public class Main {
         System.out.println("====================================");
         UnderstandingSwitchPatternMatching.doExercise();
         System.out.println("====================================");
+        UnderstandingPseudoRandomGenerator.doExercise();
     }
 }
