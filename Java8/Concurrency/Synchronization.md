@@ -23,9 +23,9 @@
 2. Acquiring the lock means gaining ownership of the monitor.
 3. When thread enters into synchronized method or block, tries to get ownership of monitor of the object referred by `objectref`.
 4. The Monitor or Lock or Intrinsic Lock is reentrant in nature, which means, a thread can acquire the lock that it has 
-    already acquired and it maintains the count of how many times the lock has been acquired by a specific thread.
-5. The section in which code executed between monitorenter and monitorexit is known as `critical section.`
-6. The monitorenter and monitorexit instructions are NOT used in the implementation of synchronized methods.
+    already acquired, and it maintains the count of how many times the lock has been acquired by a specific thread.
+5. The section in which code executed between `monitorenter` and `monitorexit` is known as `critical section.`
+6. The `monitorenter` and `monitorexit` instructions are NOT used in the implementation of synchronized methods.
 7. In case of `static` methods, lock is acquired on `.class` object. 
    - In case of `non-static method`, the monitor is acquired on `this` object.
    - In case of synchronized block whether it is static or non-static method, it depends on us that which resource 

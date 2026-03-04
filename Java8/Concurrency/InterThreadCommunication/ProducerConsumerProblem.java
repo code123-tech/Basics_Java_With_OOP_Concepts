@@ -1,4 +1,4 @@
-package Java;
+package Java8.Concurrency.InterThreadCommunication;
 
 import java.util.ArrayList;
 import java.util.List;

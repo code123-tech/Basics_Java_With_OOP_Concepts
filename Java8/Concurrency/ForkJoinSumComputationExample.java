@@ -1,4 +1,4 @@
-package Java;
+package Java8.Concurrency;
 
 import java.util.Random;
 import java.util.concurrent.ForkJoinPool;
