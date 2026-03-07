@@ -59,6 +59,12 @@ import java.util.concurrent.*;
  *     <li>Use allOf to wait for all the futures to complete.</li>
  *     <li>Use join to block the main thread until all the futures are complete.</li>
  * </ul>
+ *
+ * <h4>Executor choice (very common in interviews)</h4>
+ * <ul>
+ *     <li><b>Use the default ForkJoinPool.commonPool()</b> for CPU-bound work that does not block.</li>
+ *     <li><b>Use your own ExecutorService</b> for blocking work (DB/HTTP/file I/O, sleeps), for isolation, or when you need bounded concurrency and controlled shutdown.</li>
+ * </ul>
  */
 public class CompletableFutureHandsOn {
 
@@ -212,4 +218,10 @@ Answers (short)
 
 - Why `get()` inside a pipeline is bad
   - It blocks threads (kills async benefits), can cause thread starvation/deadlocks on limited pools, and usually belongs only at the very end (or not at all).
+
+Interview Q/A: commonPool vs custom ExecutorService
+- Q: When should you use your own ExecutorService instead of ForkJoinPool.commonPool() with CompletableFuture?
+  A: When the tasks are blocking (DB/HTTP/file I/O, Thread.sleep), when you need isolation, bounded concurrency, custom threads, or controlled shutdown.
+- Q: When is ForkJoinPool.commonPool() usually fine?
+  A: For CPU-bound, non-blocking work where you want simple async execution without managing a pool.
 */
