@@ -111,3 +111,89 @@ and all the synchronization needed. All you need to do is play the role of the p
 - Check Out the Tutorial [here](https://medium.com/@cs.vivekgupta/overview-of-fork-join-framework-core-of-parallelism-in-java-35f4a4cc8c3b).
 
 4. **_Completable Future - Introduced in Java 8._**
+
+CompletableFuture is Java 8’s answer to this problem: **`Future` gives you a value “later”, but it’s hard to compose**.
+With `Future`, you often end up blocking (`get()`), manually wiring callbacks, or managing threads yourself.
+
+**Official references (recommended reading)**
+- CompletableFuture Javadoc (Java 8): https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html
+- CompletionStage Javadoc (Java 8): https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletionStage.html
+- Concurrency utilities changes in Java 8: https://docs.oracle.com/javase/8/docs/technotes/guides/concurrency/changes8.html
+
+#### What it is
+- `CompletableFuture<T>` implements **both**:
+  - `Future<T>` (represents a result that will be available later)
+  - `CompletionStage<T>` (lets you **attach stages** that run when the result is ready)
+- It can be **completed explicitly** using `complete(value)` or `completeExceptionally(ex)`. (See Javadoc)
+
+#### What problem it solves (in simple terms)
+- **No blocking by default**: instead of calling `get()`, you attach “what to do next”.
+- **Composition**: chain async steps (`thenCompose`), combine results (`thenCombine`), and wait for many (`allOf/anyOf`).
+- **Clear exception handling**: handle failures as part of the pipeline (`exceptionally`, `handle`, `whenComplete`).
+
+#### Basic mental model (pipeline)
+Think of it like a pipeline:
+1) start an async computation
+2) transform result
+3) combine with other async work
+4) handle errors
+5) end with a final action
+
+```java
+import java.util.concurrent.CompletableFuture;
+
+CompletableFuture.supplyAsync(() -> "hello")     // start async
+        .thenApply(s -> s.toUpperCase())         // transform
+        .thenAccept(System.out::println)         // consume
+        .exceptionally(ex -> {                   // handle error
+            ex.printStackTrace();
+            return null;
+        });
+```
+
+#### Key APIs you’ll use in real code
+- **Transform**
+  - `thenApply(fn)` → change the result
+  - `thenAccept(consumer)` → consume result, return void stage
+  - `thenRun(runnable)` → run action, ignores result
+
+- **Async variants**
+  - `thenApplyAsync(...)`, `thenAcceptAsync(...)`, etc.
+  - If you don’t pass an `Executor`, async stages use `ForkJoinPool.commonPool()` by default (see CompletableFuture Javadoc).
+
+- **Compose vs Combine (most common interview topic)**
+  - `thenCompose(fnReturningStage)` → **flatten** nested futures (do step-2 after step-1)
+  - `thenCombine(otherStage, combiner)` → **join** two independent stages and combine results
+
+- **Many futures**
+  - `CompletableFuture.allOf(f1, f2, ...)` → completes when all complete (result type is `Void`)
+  - `CompletableFuture.anyOf(f1, f2, ...)` → completes when any completes
+
+- **Exception handling**
+  - `exceptionally(fn)` → recover from failure (only runs on exception)
+  - `handle((value, ex) -> ...)` → runs on success or failure, can transform to a new value
+  - `whenComplete((value, ex) -> ...)` → “peek” for logging/side effects; keeps same result/exception
+
+#### Common pitfalls (important)
+- **Don’t call `get()` too early**: that turns async code back into blocking code.
+- **Be aware of thread pool usage**: async stages default to `ForkJoinPool.commonPool()` unless you supply an `Executor`.
+- **Exceptions are wrapped**: failures in stages often appear wrapped in `CompletionException` (see CompletionStage Javadoc).
+- **Cancellation doesn’t stop your work automatically**: cancelling a CompletableFuture marks it exceptionally completed, but it may not interrupt the underlying work (see CompletableFuture Javadoc).
+- **Difference between `Future` and `CompletableFuture`**
+  - `Future`: represents a value “later”, but isn’t naturally composable; you often block with `get()`.
+  - `CompletableFuture`: a `Future` + `CompletionStage` pipeline; you attach stages (`thenApply/...`) and compose async work without blocking.
+
+- **When to use `thenCompose()` vs `thenCombine()`**
+  - `thenCompose`: when the next step returns another `CompletableFuture` (dependent async call). It “flattens” nested futures.
+  - `thenCombine`: when you have two independent futures and want to combine results after both complete.
+
+- **Default executor used by `*Async()` methods (no executor provided)**
+  - `ForkJoinPool.commonPool()` (as per Java 8 `CompletableFuture` Javadoc).
+
+- **Difference between `exceptionally()`, `handle()`, and `whenComplete()`**
+  - `exceptionally(fn)`: runs only on failure; returns a recovery value.
+  - `handle((value, ex) -> ...)`: runs on success or failure; returns a value (transform or recover).
+  - `whenComplete((value, ex) -> ...)`: runs on success or failure for side effects (logging/metrics); keeps the same result/exception unless you throw.
+
+- **Why `get()` inside a pipeline is bad**
+  - It blocks threads (kills async benefits), can cause thread starvation/deadlocks on limited pools, and usually belongs only at the very end (or not at all).
