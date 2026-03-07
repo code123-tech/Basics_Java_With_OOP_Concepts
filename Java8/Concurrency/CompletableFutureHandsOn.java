@@ -63,10 +63,10 @@ import java.util.concurrent.*;
 public class CompletableFutureHandsOn {
 
     public static void main(String[] args) {
-        Exercise1();
+        Exercise();
     }
 
-    private static void Exercise1() {
+    private static void Exercise() {
         System.out.println("Simulating Async Aggregator...");
 
         long startMs = System.currentTimeMillis();
