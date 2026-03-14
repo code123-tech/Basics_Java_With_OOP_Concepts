@@ -53,3 +53,36 @@ This section summarizes: [Java Project Loom: Unlocking the Power of Java Virtual
 ### Practical takeaway
 - Virtual threads don’t make code “magically faster”, but they can make Java apps dramatically more scalable for **I/O-bound concurrency** while keeping code readable (blocking style).
 
+## Virtual Threads vs Platform Threads — findings from an investigative study (Java 23)
+
+This section summarizes: [An Investigative Study: Virtual Threads VS Platform Threads in Java 23 (yCrash)](https://blog.ycrash.io/an-investigative-study-virtual-threads-vs-platform-threads-in-java-23/).
+
+### Quick definitions (as used in the article)
+- **Platform thread**: thin wrapper over an OS thread (1:1). Holds the OS thread for its whole lifetime.
+- **Virtual thread**: a `Thread` that is not permanently tied to an OS thread. When it blocks (e.g., I/O / sleep), the JVM can suspend it and free the underlying OS thread to run other virtual threads.
+
+### Recommended execution style
+- **Platform threads**: usually need pooling (`newFixedThreadPool`) because OS threads are scarce.
+- **Virtual threads**: don’t pool like platform threads. Prefer “one task → one virtual thread”:
+  - `try (var executor = Executors.newVirtualThreadPerTaskExecutor()) { ... }`
+
+### What the benchmark tried to demonstrate
+- A task that does:
+  - some CPU work (sum of primes up to a random limit)
+  - then a small blocking wait (simulated I/O using `Thread.sleep(10)`)
+- Compare:
+  - fixed platform thread pool
+  - virtual-thread-per-task executor
+
+### Results highlighted in the article (high-level)
+- For the tested workload, virtual threads completed large numbers of “mostly waiting” tasks significantly faster than platform threads.
+- The article reports (on their test machine) results like:
+  - **10,000 tasks**: platform threads ~51 seconds vs virtual threads under ~1 second
+  - **100,000 tasks**: platform threads ~8 minutes vs virtual threads ~1 minute
+
+### Practical takeaways
+- Virtual threads shine when tasks have **predictable blocking/waiting** (I/O-bound workloads).
+- Platform threads can be fine when:
+  - task counts are low, or
+  - tasks are very CPU-heavy (CPU becomes the true bottleneck).
+
