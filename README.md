@@ -37,4 +37,3 @@ Basic Concepts for Java, and Object-Oriented Programming
 #### Java 17 Features - [Java17 Features](./Java17)
 
 #### Java 21 Features - [Java21 Features](./Java21)
-* Virtual Threads: go to [Virtual Threads](./Java21/src/main/java/org/example/VirtualThreads)

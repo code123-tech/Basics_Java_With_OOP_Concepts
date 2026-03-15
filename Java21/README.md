@@ -1,9 +1,9 @@
 ## New topics introduced
 
-- **Virtual Threads (JEP 444)**: Lightweight threads for scalable blocking-style concurrency.
-- **Structured Concurrency (Preview) (JEP 453)**: Manage multiple concurrent tasks as a single unit (cancel/propagate failure safely).
-- **Scoped Values (Preview) (JEP 446)**: Safer alternative to `ThreadLocal`, designed to work well with virtual threads.
-- **Record Patterns (JEP 440)**: Pattern-match and destructure records.
+- **Virtual Threads (JEP 444)**: Lightweight threads for scalable blocking-style concurrency. Check [VirtualThreads](./src/main/java/org/example/VirtualThreads)
+- **Structured Concurrency (Preview) (JEP 453)**: Manage multiple concurrent tasks as a single unit (cancel/propagate failure safely). Check [Structured Concurrency](./src/main/java/org/example/StructuredConcurrency)
+- **Scoped Values (Preview) (JEP 446)**: Safer alternative to `ThreadLocal`, designed to work well with virtual threads. Check [Scoped Value](./src/main/java/org/example/ScopedValues)
+- **Record Patterns (JEP 440)**: Pattern-match and destructure records. Check [Record Patterns](./src/main/java/org/example/RecordPatterns)
 - **Pattern Matching for `switch` (JEP 441)**: Final form of switch pattern matching (no longer preview).
 - **Sequenced Collections (JEP 431)**: New `SequencedCollection`/`SequencedSet`/`SequencedMap` + `getFirst()`/`getLast()`/`reversed()`.
 - **String Templates (Preview) (JEP 430)**: Safer string interpolation (preview in 21).
