@@ -39,3 +39,5 @@ Basic Concepts for Java, and Object-Oriented Programming
 #### Java 21 Features - [Java21 Features](./Java21)
 
 #### Java 22 Features - [Java22 Features](./Java22)
+
+#### Java 26 Features - [Java26 Features](./Java26)
