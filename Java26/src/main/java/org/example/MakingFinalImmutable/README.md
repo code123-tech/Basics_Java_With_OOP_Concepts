@@ -1,0 +1,1 @@
+To check, how final field can be modified, check [here](./../../../../../../../Java22/src/main/java/org/example/FinalFieldMutable.java)
