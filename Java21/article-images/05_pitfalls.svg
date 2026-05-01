@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 380" width="860" height="380" font-family="Segoe UI, Arial, sans-serif">
+
+  <!-- Background -->
+  <rect width="860" height="380" fill="#0f1117" rx="16"/>
+
+  <!-- Title -->
+  <text x="430" y="36" text-anchor="middle" font-size="18" font-weight="bold" fill="#e2e8f0">3 Things You Must Know Before Using Virtual Threads</text>
+  <text x="430" y="57" text-anchor="middle" font-size="13" fill="#94a3b8">Avoid these pitfalls to get the full benefit</text>
+
+  <!-- ── CARD 1: Daemon threads ── -->
+  <rect x="30" y="76" width="252" height="280" rx="12" fill="#1e293b" stroke="#f59e0b" stroke-width="1.8"/>
+  <!-- Number badge -->
+  <circle cx="70" cy="106" r="18" fill="#f59e0b"/>
+  <text x="70" y="112" text-anchor="middle" font-size="14" font-weight="bold" fill="#0f1117">1</text>
+  <text x="160" y="112" text-anchor="middle" font-size="13" font-weight="bold" fill="#fbbf24">Daemon by Default</text>
+
+  <!-- icon -->
+  <text x="156" y="148" text-anchor="middle" font-size="30">👻</text>
+
+  <text x="156" y="178" text-anchor="middle" font-size="11" fill="#94a3b8">Virtual threads are daemon</text>
+  <text x="156" y="194" text-anchor="middle" font-size="11" fill="#94a3b8">threads. If main exits, they</text>
+  <text x="156" y="210" text-anchor="middle" font-size="11" fill="#94a3b8">die with it — silently.</text>
+
+  <!-- Wrong code -->
+  <rect x="46" y="220" width="220" height="50" rx="6" fill="#2d1515" stroke="#ef4444" stroke-width="1"/>
+  <text x="156" y="237" text-anchor="middle" font-size="10" fill="#fca5a5">❌ Thread.ofVirtual()</text>
+  <text x="156" y="252" text-anchor="middle" font-size="10" fill="#fca5a5">     .start(() -&gt; doWork());</text>
+  <text x="156" y="265" text-anchor="middle" font-size="9"  fill="#ef4444">// main may exit first!</text>
+
+  <!-- Right approach -->
+  <rect x="46" y="278" width="220" height="64" rx="6" fill="#14532d" stroke="#22c55e" stroke-width="1"/>
+  <text x="156" y="296" text-anchor="middle" font-size="10" fill="#86efac">✅ Use join(), latch.await(),</text>
+  <text x="156" y="311" text-anchor="middle" font-size="10" fill="#86efac">   or executor.awaitTermination()</text>
+  <text x="156" y="326" text-anchor="middle" font-size="10" fill="#4ade80">   to keep main alive</text>
+  <text x="156" y="341" text-anchor="middle" font-size="9"  fill="#22c55e">// until all VTs complete</text>
+
+  <!-- ── CARD 2: Don't Pool ── -->
+  <rect x="304" y="76" width="252" height="280" rx="12" fill="#1e293b" stroke="#f59e0b" stroke-width="1.8"/>
+  <circle cx="344" cy="106" r="18" fill="#f59e0b"/>
+  <text x="344" y="112" text-anchor="middle" font-size="14" font-weight="bold" fill="#0f1117">2</text>
+  <text x="430" y="112" text-anchor="middle" font-size="13" font-weight="bold" fill="#fbbf24">Do NOT Pool VTs</text>
+
+  <text x="430" y="148" text-anchor="middle" font-size="30">🚫</text>
+
+  <text x="430" y="178" text-anchor="middle" font-size="11" fill="#94a3b8">Pooling virtual threads</text>
+  <text x="430" y="194" text-anchor="middle" font-size="11" fill="#94a3b8">defeats their purpose.</text>
+  <text x="430" y="210" text-anchor="middle" font-size="11" fill="#94a3b8">They're cheap — create freely.</text>
+
+  <rect x="320" y="220" width="220" height="50" rx="6" fill="#2d1515" stroke="#ef4444" stroke-width="1"/>
+  <text x="430" y="237" text-anchor="middle" font-size="10" fill="#fca5a5">❌ Executors</text>
+  <text x="430" y="252" text-anchor="middle" font-size="10" fill="#fca5a5">   .newFixedThreadPool(200)</text>
+  <text x="430" y="265" text-anchor="middle" font-size="9"  fill="#ef4444">// re-introduces queuing</text>
+
+  <rect x="320" y="278" width="220" height="64" rx="6" fill="#14532d" stroke="#22c55e" stroke-width="1"/>
+  <text x="430" y="296" text-anchor="middle" font-size="10" fill="#86efac">✅ Executors</text>
+  <text x="430" y="311" text-anchor="middle" font-size="10" fill="#86efac">   .newVirtualThreadPerTaskExecutor()</text>
+  <text x="430" y="326" text-anchor="middle" font-size="10" fill="#4ade80">   one VT per task</text>
+  <text x="430" y="341" text-anchor="middle" font-size="9"  fill="#22c55e">// JVM handles scheduling</text>
+
+  <!-- ── CARD 3: Pinning ── -->
+  <rect x="578" y="76" width="252" height="280" rx="12" fill="#1e293b" stroke="#f59e0b" stroke-width="1.8"/>
+  <circle cx="618" cy="106" r="18" fill="#f59e0b"/>
+  <text x="618" y="112" text-anchor="middle" font-size="14" font-weight="bold" fill="#0f1117">3</text>
+  <text x="704" y="112" text-anchor="middle" font-size="13" font-weight="bold" fill="#fbbf24">Pinning (synchronized)</text>
+
+  <text x="704" y="148" text-anchor="middle" font-size="30">📌</text>
+
+  <text x="704" y="178" text-anchor="middle" font-size="11" fill="#94a3b8">In Java 21, blocking inside</text>
+  <text x="704" y="194" text-anchor="middle" font-size="11" fill="#94a3b8">synchronized pins the VT</text>
+  <text x="704" y="210" text-anchor="middle" font-size="11" fill="#94a3b8">to its carrier (can't unmount).</text>
+
+  <rect x="594" y="220" width="220" height="50" rx="6" fill="#2d1515" stroke="#ef4444" stroke-width="1"/>
+  <text x="704" y="237" text-anchor="middle" font-size="10" fill="#fca5a5">❌ synchronized(lock) &#x7B;</text>
+  <text x="704" y="252" text-anchor="middle" font-size="10" fill="#fca5a5">   blockingOp(); &#x7D;</text>
+  <text x="704" y="265" text-anchor="middle" font-size="9"  fill="#ef4444">// VT pinned, carrier blocked</text>
+
+  <rect x="594" y="278" width="220" height="64" rx="6" fill="#14532d" stroke="#22c55e" stroke-width="1"/>
+  <text x="704" y="296" text-anchor="middle" font-size="10" fill="#86efac">✅ ReentrantLock lock = new</text>
+  <text x="704" y="311" text-anchor="middle" font-size="10" fill="#86efac">     ReentrantLock();</text>
+  <text x="704" y="326" text-anchor="middle" font-size="10" fill="#4ade80">   lock.lock(); blockingOp();</text>
+  <text x="704" y="341" text-anchor="middle" font-size="9"  fill="#22c55e">// VT can unmount freely</text>
+</svg>

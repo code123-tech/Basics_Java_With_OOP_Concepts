@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Virtual Threads in Java 21 — Medium Article</title>
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #121212;
+      color: #e2e8f0;
+      font-family: 'Georgia', 'Times New Roman', serif;
+      font-size: 18px;
+      line-height: 1.85;
+      padding: 0 16px 80px;
+    }
+
+    /* ── Article container ── */
+    .article {
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      padding: 64px 0 48px;
+      border-bottom: 1px solid #1e293b;
+      margin-bottom: 48px;
+    }
+
+    .tag {
+      display: inline-block;
+      background: #1e3a5f;
+      color: #93c5fd;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 4px;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      font-size: 42px;
+      font-weight: 700;
+      line-height: 1.2;
+      color: #f1f5f9;
+      margin-bottom: 20px;
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      font-size: 20px;
+      color: #94a3b8;
+      font-style: italic;
+      margin-bottom: 32px;
+      line-height: 1.5;
+    }
+
+    .meta {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 14px;
+      color: #64748b;
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .meta span { display: flex; align-items: center; gap: 6px; }
+
+    /* ── Section Headings ── */
+    h2 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #f1f5f9;
+      margin: 56px 0 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #1e293b;
+    }
+
+    h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #7dd3fc;
+      margin: 36px 0 14px;
+      font-family: 'Segoe UI', Arial, sans-serif;
+    }
+
+    /* ── Paragraphs ── */
+    p {
+      margin-bottom: 22px;
+      color: #cbd5e1;
+    }
+
+    /* ── Image wrapper ── */
+    .img-block {
+      margin: 36px 0 12px;
+      background: #0f1117;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid #1e293b;
+      box-shadow: 0 4px 24px rgba(0,0,0,.5);
+    }
+
+    .img-block svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .img-caption {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 13px;
+      color: #64748b;
+      text-align: center;
+      padding: 10px 16px 14px;
+      border-top: 1px solid #1e293b;
+      font-style: italic;
+    }
+
+    /* ── Code blocks ── */
+    pre {
+      background: #0d1117;
+      border: 1px solid #1e293b;
+      border-left: 3px solid #3b82f6;
+      border-radius: 10px;
+      padding: 22px 26px;
+      overflow-x: auto;
+      margin: 24px 0 28px;
+      font-family: 'Courier New', 'Fira Code', monospace;
+      font-size: 14px;
+      line-height: 1.7;
+      color: #e2e8f0;
+    }
+
+    code {
+      background: #1e293b;
+      color: #93c5fd;
+      font-family: 'Courier New', monospace;
+      font-size: 15px;
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+
+    pre code {
+      background: none;
+      color: inherit;
+      font-size: 14px;
+      padding: 0;
+    }
+
+    /* Code syntax highlights */
+    .kw  { color: #c084fc; }   /* keywords */
+    .cm  { color: #475569; font-style: italic; } /* comments */
+    .st  { color: #86efac; }   /* strings */
+    .nm  { color: #fbbf24; }   /* numbers / types */
+    .fn  { color: #60a5fa; }   /* function names */
+    .ok  { color: #4ade80; }   /* ✅ good */
+    .bad { color: #f87171; }   /* ❌ bad */
+
+    /* ── Callout boxes ── */
+    .callout {
+      border-radius: 10px;
+      padding: 18px 22px;
+      margin: 28px 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .callout.info {
+      background: #0c1a2e;
+      border-left: 4px solid #3b82f6;
+      color: #93c5fd;
+    }
+
+    .callout.warn {
+      background: #1c1400;
+      border-left: 4px solid #f59e0b;
+      color: #fbbf24;
+    }
+
+    .callout.tip {
+      background: #0d1f0d;
+      border-left: 4px solid #22c55e;
+      color: #86efac;
+    }
+
+    .callout.danger {
+      background: #1c0a0a;
+      border-left: 4px solid #ef4444;
+      color: #fca5a5;
+    }
+
+    /* ── Table ── */
+    .table-wrap { overflow-x: auto; margin: 28px 0; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 15px;
+    }
+
+    th {
+      background: #1e293b;
+      color: #7dd3fc;
+      padding: 12px 16px;
+      text-align: left;
+      font-weight: 700;
+      border-bottom: 2px solid #334155;
+    }
+
+    td {
+      padding: 11px 16px;
+      border-bottom: 1px solid #1e293b;
+      color: #cbd5e1;
+      vertical-align: top;
+    }
+
+    tr:hover td { background: #0f1f35; }
+
+    td.green { color: #4ade80; font-weight: 600; }
+    td.orange { color: #fb923c; font-weight: 600; }
+
+    /* ── Blockquote ── */
+    blockquote {
+      border-left: 4px solid #6366f1;
+      margin: 32px 0;
+      padding: 14px 24px;
+      background: #12112a;
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: #a5b4fc;
+      font-size: 19px;
+    }
+
+    /* ── Divider ── */
+    hr {
+      border: none;
+      border-top: 1px solid #1e293b;
+      margin: 48px 0;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: 64px;
+      padding-top: 32px;
+      border-top: 1px solid #1e293b;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 14px;
+      color: #64748b;
+      text-align: center;
+    }
+
+    .footer a { color: #60a5fa; text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      h1 { font-size: 28px; }
+      body { font-size: 16px; }
+      pre { font-size: 13px; padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+<article class="article">
+
+  <!-- ═══════════════════════════════ HERO ═══════════════════════════════ -->
+  <header class="hero">
+    <div class="tag">Java 21 · Project Loom · Concurrency</div>
+    <h1>Virtual Threads in Java 21:<br>The End of Thread-Per-Request Nightmares</h1>
+    <p class="subtitle">A practical guide with real benchmarks, diagrams, and production-ready code — based on hands-on learning with Java 21.</p>
+    <div class="meta">
+      <span>📅 March 2026</span>
+      <span>⏱ 12 min read</span>
+      <span>☕ Java 21 · JEP 444</span>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════ SECTION 1 ═══════════════════════════════ -->
+  <h2>The Problem Every Java Developer Has Hit</h2>
+
+  <p>
+    You're building a REST API. Every incoming request hits a database, calls an external service,
+    waits for a response. Simple enough. But then traffic spikes — 10,000 concurrent users —
+    and your server starts throwing:
+  </p>
+
+  <pre><code><span class="bad">java.lang.OutOfMemoryError: unable to create new native thread</span></code></pre>
+
+  <p>
+    Sound familiar? This is the wall every Java developer eventually hits when scaling I/O-heavy
+    applications. And for a long time, the only real answer was: write async/reactive code, or buy
+    more hardware.
+  </p>
+
+  <p>
+    <strong>Java 21 changes that with Virtual Threads</strong> — one of the most impactful features
+    added to the language in years, shipped as a permanent feature in
+    <a style="color:#60a5fa" href="https://openjdk.org/jeps/444">JEP 444</a>.
+  </p>
+
+  <!-- ═══════════════════════════════ SECTION 2 ═══════════════════════════════ -->
+  <h2>Understanding the Root Cause: Platform Threads</h2>
+
+  <p>
+    Before we talk about virtual threads, we need to understand why traditional threads hit that wall.
+    A <strong>platform thread</strong> (what Java has always used) maps <strong>1:1 to an OS thread</strong>.
+    Every <code>new Thread()</code> you create corresponds to an actual operating-system thread.
+  </p>
+
+  <p>This creates two compounding problems:</p>
+
+  <h3>① They're Expensive to Create</h3>
+  <p>
+    Each OS thread typically consumes <strong>1–2 MB of stack memory</strong> by default.
+    Spin up 10,000 threads and you're looking at 10–20 GB of memory just for stacks — before
+    your application has even processed a single request.
+  </p>
+
+  <h3>② They Block the OS Thread While Waiting</h3>
+  <p>
+    In an I/O-bound application, a thread spends the vast majority of its life doing
+    <em>nothing</em> — waiting for a DB response, a REST call, a message from Kafka.
+    But the OS thread it owns? Still occupied. Still burning memory and OS scheduling capacity. Just… waiting.
+  </p>
+
+  <pre><code><span class="cm">// Timeline of a typical "handle request" platform thread:</span>
+
+[<span class="ok">CPU work: 5ms</span>] → [<span class="bad">waiting for DB: 200ms</span>] → [<span class="ok">CPU work: 2ms</span>] → [<span class="bad">waiting for API: 150ms</span>]
+                      ↑                                              ↑
+                OS thread blocked,                          OS thread blocked,
+                doing nothing                               doing nothing</code></pre>
+
+  <p>
+    Thread pools help — but they only shift the problem. With a fixed pool of 200 threads and
+    10,000 concurrent requests, 9,800 requests queue up waiting for a free thread.
+  </p>
+
+  <!-- IMAGE 1 -->
+  <div class="img-block">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 420" font-family="Segoe UI, Arial, sans-serif">
+      <rect width="860" height="420" fill="#0f1117" rx="16"/>
+      <text x="430" y="38" text-anchor="middle" font-size="18" font-weight="bold" fill="#e2e8f0">Platform Threads: The Scalability Wall</text>
+      <text x="430" y="60" text-anchor="middle" font-size="13" fill="#94a3b8">Each platform thread maps 1:1 to an OS thread — blocking = wasted resource</text>
+      <rect x="30" y="80" width="220" height="300" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+      <text x="140" y="102" text-anchor="middle" font-size="13" font-weight="bold" fill="#7dd3fc">Your Application</text>
+      <rect x="50" y="115" width="180" height="44" rx="7" fill="#166534" stroke="#22c55e" stroke-width="1.5"/>
+      <text x="90" y="133" font-size="11" font-weight="bold" fill="#86efac">Platform Thread 1</text>
+      <text x="90" y="149" font-size="10" fill="#4ade80">● Executing (CPU work)</text>
+      <rect x="50" y="169" width="180" height="44" rx="7" fill="#7c2d12" stroke="#f97316" stroke-width="1.5"/>
+      <text x="90" y="187" font-size="11" font-weight="bold" fill="#fdba74">Platform Thread 2</text>
+      <text x="90" y="203" font-size="10" fill="#fb923c">⏳ Blocked — waiting DB</text>
+      <rect x="50" y="223" width="180" height="44" rx="7" fill="#7c2d12" stroke="#f97316" stroke-width="1.5"/>
+      <text x="90" y="241" font-size="11" font-weight="bold" fill="#fdba74">Platform Thread 3</text>
+      <text x="90" y="257" font-size="10" fill="#fb923c">⏳ Blocked — waiting API</text>
+      <rect x="50" y="277" width="180" height="44" rx="7" fill="#7c2d12" stroke="#f97316" stroke-width="1.5"/>
+      <text x="90" y="295" font-size="11" font-weight="bold" fill="#fdba74">Platform Thread 4</text>
+      <text x="90" y="311" font-size="10" fill="#fb923c">⏳ Blocked — waiting I/O</text>
+      <rect x="50" y="330" width="180" height="36" rx="7" fill="#1e1b4b" stroke="#818cf8" stroke-width="1.5" stroke-dasharray="5,3"/>
+      <text x="140" y="353" text-anchor="middle" font-size="11" fill="#a5b4fc">+ 9,996 tasks queuing...</text>
+      <line x1="250" y1="137" x2="308" y2="137" stroke="#22c55e" stroke-width="2" marker-end="url(#ag1)"/>
+      <line x1="250" y1="191" x2="308" y2="191" stroke="#f97316" stroke-width="2" marker-end="url(#ao1)"/>
+      <line x1="250" y1="245" x2="308" y2="245" stroke="#f97316" stroke-width="2" marker-end="url(#ao1)"/>
+      <line x1="250" y1="299" x2="308" y2="299" stroke="#f97316" stroke-width="2" marker-end="url(#ao1)"/>
+      <rect x="310" y="80" width="200" height="300" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+      <text x="410" y="102" text-anchor="middle" font-size="13" font-weight="bold" fill="#7dd3fc">OS Threads (1:1)</text>
+      <rect x="330" y="115" width="160" height="44" rx="7" fill="#14532d" stroke="#22c55e" stroke-width="1.5"/>
+      <text x="410" y="133" text-anchor="middle" font-size="11" font-weight="bold" fill="#86efac">OS Thread 1</text>
+      <text x="410" y="149" text-anchor="middle" font-size="10" fill="#4ade80">Running</text>
+      <rect x="330" y="169" width="160" height="44" rx="7" fill="#431407" stroke="#f97316" stroke-width="1.5"/>
+      <text x="410" y="187" text-anchor="middle" font-size="11" font-weight="bold" fill="#fdba74">OS Thread 2</text>
+      <text x="410" y="203" text-anchor="middle" font-size="10" fill="#fb923c">Occupied &amp; Idle 😴</text>
+      <rect x="330" y="223" width="160" height="44" rx="7" fill="#431407" stroke="#f97316" stroke-width="1.5"/>
+      <text x="410" y="241" text-anchor="middle" font-size="11" font-weight="bold" fill="#fdba74">OS Thread 3</text>
+      <text x="410" y="257" text-anchor="middle" font-size="10" fill="#fb923c">Occupied &amp; Idle 😴</text>
+      <rect x="330" y="277" width="160" height="44" rx="7" fill="#431407" stroke="#f97316" stroke-width="1.5"/>
+      <text x="410" y="295" text-anchor="middle" font-size="11" font-weight="bold" fill="#fdba74">OS Thread 4</text>
+      <text x="410" y="311" text-anchor="middle" font-size="10" fill="#fb923c">Occupied &amp; Idle 😴</text>
+      <rect x="330" y="330" width="160" height="36" rx="7" fill="#1c1917" stroke="#78716c" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="410" y="353" text-anchor="middle" font-size="11" fill="#a8a29e">~1–2 MB stack each</text>
+      <line x1="510" y1="230" x2="568" y2="230" stroke="#64748b" stroke-width="2" marker-end="url(#agr1)"/>
+      <rect x="570" y="80" width="260" height="300" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+      <text x="700" y="102" text-anchor="middle" font-size="13" font-weight="bold" fill="#f87171">The Problems</text>
+      <rect x="588" y="115" width="224" height="58" rx="7" fill="#2d1515" stroke="#ef4444" stroke-width="1"/>
+      <text x="700" y="134" text-anchor="middle" font-size="12" font-weight="bold" fill="#fca5a5">Memory Bloat</text>
+      <text x="700" y="150" text-anchor="middle" font-size="11" fill="#fca5a5">10,000 threads</text>
+      <text x="700" y="165" text-anchor="middle" font-size="11" fill="#ef4444">≈ 10–20 GB stack memory</text>
+      <rect x="588" y="183" width="224" height="58" rx="7" fill="#2d1515" stroke="#ef4444" stroke-width="1"/>
+      <text x="700" y="202" text-anchor="middle" font-size="12" font-weight="bold" fill="#fca5a5">Wasted OS Resources</text>
+      <text x="700" y="218" text-anchor="middle" font-size="11" fill="#fca5a5">Blocked threads still hold</text>
+      <text x="700" y="233" text-anchor="middle" font-size="11" fill="#ef4444">their OS thread (doing nothing)</text>
+      <rect x="588" y="251" width="224" height="58" rx="7" fill="#2d1515" stroke="#ef4444" stroke-width="1"/>
+      <text x="700" y="270" text-anchor="middle" font-size="12" font-weight="bold" fill="#fca5a5">OOM Crash</text>
+      <text x="700" y="286" text-anchor="middle" font-size="11" fill="#fca5a5">OutOfMemoryError:</text>
+      <text x="700" y="301" text-anchor="middle" font-size="11" fill="#ef4444">unable to create native thread</text>
+      <rect x="588" y="319" width="224" height="47" rx="7" fill="#1e1b4b" stroke="#6366f1" stroke-width="1"/>
+      <text x="700" y="337" text-anchor="middle" font-size="11" fill="#a5b4fc">With pool of 8 threads</text>
+      <text x="700" y="352" text-anchor="middle" font-size="11" fill="#818cf8">10k tasks × 10ms =</text>
+      <text x="700" y="366" text-anchor="middle" font-size="12" font-weight="bold" fill="#6366f1">~12,500ms wait time</text>
+      <defs>
+        <marker id="ag1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#22c55e"/></marker>
+        <marker id="ao1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#f97316"/></marker>
+        <marker id="agr1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#64748b"/></marker>
+      </defs>
+    </svg>
+    <div class="img-caption">Fig 1 — Platform threads: 3 out of 4 are blocked doing nothing while still occupying an OS thread and memory.</div>
+  </div>
+
+  <!-- ═══════════════════════════════ SECTION 3 ═══════════════════════════════ -->
+  <h2>Enter Virtual Threads (Project Loom)</h2>
+
+  <p>
+    Java 21 ships Virtual Threads (finalized in JEP 444) as part of Project Loom.
+    The core idea is simple but powerful:
+  </p>
+
+  <blockquote>
+    A virtual thread is a lightweight thread <strong>managed by the JVM</strong>, not the OS.
+  </blockquote>
+
+  <p>
+    Virtual threads run on top of platform threads — called <strong>carrier threads</strong> — but
+    they're not permanently tied to one. When a virtual thread blocks (on I/O, sleep, etc.),
+    the JVM <strong>unmounts</strong> it from its carrier thread. The carrier is then free to run other
+    virtual threads. When the blocked operation completes, the virtual thread is
+    <strong>re-mounted</strong> on any available carrier and continues.
+  </p>
+
+  <p>
+    The result: you can have <strong>millions of virtual threads</strong> while using only a handful
+    of carrier threads (typically = number of CPU cores). The JVM's scheduler handles the rest.
+  </p>
+
+  <!-- IMAGE 2 -->
+  <div class="img-block">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 460" font-family="Segoe UI, Arial, sans-serif">
+      <rect width="860" height="460" fill="#0f1117" rx="16"/>
+      <text x="430" y="38" text-anchor="middle" font-size="18" font-weight="bold" fill="#e2e8f0">Virtual Threads Architecture</text>
+      <text x="430" y="60" text-anchor="middle" font-size="13" fill="#94a3b8">Millions of virtual threads → handful of carrier threads → OS threads</text>
+      <rect x="30" y="80" width="800" height="120" rx="12" fill="#0c1a2e" stroke="#1e40af" stroke-width="1.5"/>
+      <text x="430" y="100" text-anchor="middle" font-size="13" font-weight="bold" fill="#93c5fd">Virtual Threads (JVM-managed, lightweight — heap objects)</text>
+      <rect x="50" y="108" width="90" height="38" rx="6" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1.5"/>
+      <text x="95" y="123" text-anchor="middle" font-size="10" font-weight="bold" fill="#93c5fd">VT-1</text>
+      <text x="95" y="138" text-anchor="middle" font-size="9" fill="#60a5fa">▶ Running</text>
+      <rect x="152" y="108" width="90" height="38" rx="6" fill="#1c2a1c" stroke="#6b7280" stroke-width="1" stroke-dasharray="4,2"/>
+      <text x="197" y="123" text-anchor="middle" font-size="10" font-weight="bold" fill="#9ca3af">VT-2</text>
+      <text x="197" y="138" text-anchor="middle" font-size="9" fill="#6b7280">⏸ Parked</text>
+      <rect x="254" y="108" width="90" height="38" rx="6" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1.5"/>
+      <text x="299" y="123" text-anchor="middle" font-size="10" font-weight="bold" fill="#93c5fd">VT-3</text>
+      <text x="299" y="138" text-anchor="middle" font-size="9" fill="#60a5fa">▶ Running</text>
+      <rect x="356" y="108" width="90" height="38" rx="6" fill="#1c2a1c" stroke="#6b7280" stroke-width="1" stroke-dasharray="4,2"/>
+      <text x="401" y="123" text-anchor="middle" font-size="10" font-weight="bold" fill="#9ca3af">VT-4</text>
+      <text x="401" y="138" text-anchor="middle" font-size="9" fill="#6b7280">⏸ Parked</text>
+      <rect x="458" y="108" width="90" height="38" rx="6" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1.5"/>
+      <text x="503" y="123" text-anchor="middle" font-size="10" font-weight="bold" fill="#93c5fd">VT-5</text>
+      <text x="503" y="138" text-anchor="middle" font-size="9" fill="#60a5fa">▶ Running</text>
+      <rect x="560" y="108" width="90" height="38" rx="6" fill="#1c2a1c" stroke="#6b7280" stroke-width="1" stroke-dasharray="4,2"/>
+      <text x="605" y="123" text-anchor="middle" font-size="10" font-weight="bold" fill="#9ca3af">VT-6</text>
+      <text x="605" y="138" text-anchor="middle" font-size="9" fill="#6b7280">⏸ Parked</text>
+      <rect x="662" y="108" width="90" height="38" rx="6" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1.5"/>
+      <text x="707" y="123" text-anchor="middle" font-size="10" font-weight="bold" fill="#93c5fd">VT-7</text>
+      <text x="707" y="138" text-anchor="middle" font-size="9" fill="#60a5fa">▶ Running</text>
+      <rect x="764" y="108" width="56" height="38" rx="6" fill="#111827" stroke="#374151" stroke-width="1" stroke-dasharray="3,2"/>
+      <text x="792" y="127" text-anchor="middle" font-size="10" fill="#6b7280">+millions</text>
+      <text x="792" y="140" text-anchor="middle" font-size="9" fill="#4b5563">parked</text>
+      <rect x="50" y="155" width="12" height="12" rx="2" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1.5"/>
+      <text x="67" y="165" font-size="10" fill="#93c5fd">Mounted (active on carrier)</text>
+      <rect x="250" y="155" width="12" height="12" rx="2" fill="#1c2a1c" stroke="#6b7280" stroke-width="1" stroke-dasharray="4,2"/>
+      <text x="267" y="165" font-size="10" fill="#9ca3af">Parked (waiting, stored on heap — ~KB only)</text>
+      <line x1="95" y1="210" x2="95" y2="246" stroke="#3b82f6" stroke-width="1.8" marker-end="url(#ab2)"/>
+      <line x1="299" y1="210" x2="299" y2="246" stroke="#3b82f6" stroke-width="1.8" marker-end="url(#ab2)"/>
+      <line x1="503" y1="210" x2="503" y2="246" stroke="#3b82f6" stroke-width="1.8" marker-end="url(#ab2)"/>
+      <line x1="707" y1="210" x2="707" y2="246" stroke="#3b82f6" stroke-width="1.8" marker-end="url(#ab2)"/>
+      <text x="200" y="235" text-anchor="middle" font-size="10" fill="#60a5fa">mount →</text>
+      <text x="605" y="235" text-anchor="middle" font-size="10" fill="#60a5fa">mount →</text>
+      <rect x="30" y="246" width="800" height="100" rx="12" fill="#0d1f0d" stroke="#166534" stroke-width="1.5"/>
+      <text x="430" y="266" text-anchor="middle" font-size="13" font-weight="bold" fill="#86efac">Carrier Threads (Platform Threads — one per CPU core)</text>
+      <rect x="50" y="276" width="140" height="48" rx="7" fill="#14532d" stroke="#22c55e" stroke-width="1.5"/>
+      <text x="120" y="296" text-anchor="middle" font-size="11" font-weight="bold" fill="#86efac">Carrier Thread 1</text>
+      <text x="120" y="312" text-anchor="middle" font-size="10" fill="#4ade80">running VT-1</text>
+      <rect x="230" y="276" width="140" height="48" rx="7" fill="#14532d" stroke="#22c55e" stroke-width="1.5"/>
+      <text x="300" y="296" text-anchor="middle" font-size="11" font-weight="bold" fill="#86efac">Carrier Thread 2</text>
+      <text x="300" y="312" text-anchor="middle" font-size="10" fill="#4ade80">running VT-3</text>
+      <rect x="490" y="276" width="140" height="48" rx="7" fill="#14532d" stroke="#22c55e" stroke-width="1.5"/>
+      <text x="560" y="296" text-anchor="middle" font-size="11" font-weight="bold" fill="#86efac">Carrier Thread 3</text>
+      <text x="560" y="312" text-anchor="middle" font-size="10" fill="#4ade80">running VT-5</text>
+      <rect x="670" y="276" width="140" height="48" rx="7" fill="#14532d" stroke="#22c55e" stroke-width="1.5"/>
+      <text x="740" y="296" text-anchor="middle" font-size="11" font-weight="bold" fill="#86efac">Carrier Thread 4</text>
+      <text x="740" y="312" text-anchor="middle" font-size="10" fill="#4ade80">running VT-7</text>
+      <text x="430" y="335" text-anchor="middle" font-size="10" fill="#4ade80">Typically: number of carrier threads = available CPU cores (e.g. 8 cores = 8 carriers)</text>
+      <line x1="120" y1="370" x2="120" y2="396" stroke="#22c55e" stroke-width="1.8" marker-end="url(#ag2)"/>
+      <line x1="300" y1="370" x2="300" y2="396" stroke="#22c55e" stroke-width="1.8" marker-end="url(#ag2)"/>
+      <line x1="560" y1="370" x2="560" y2="396" stroke="#22c55e" stroke-width="1.8" marker-end="url(#ag2)"/>
+      <line x1="740" y1="370" x2="740" y2="396" stroke="#22c55e" stroke-width="1.8" marker-end="url(#ag2)"/>
+      <rect x="30" y="396" width="800" height="50" rx="12" fill="#1a1006" stroke="#d97706" stroke-width="1.5"/>
+      <text x="430" y="416" text-anchor="middle" font-size="13" font-weight="bold" fill="#fbbf24">OS Threads / CPU Cores</text>
+      <text x="430" y="434" text-anchor="middle" font-size="11" fill="#d97706">OS only sees carrier threads — virtual threads are invisible to the OS</text>
+      <defs>
+        <marker id="ab2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#3b82f6"/></marker>
+        <marker id="ag2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#22c55e"/></marker>
+      </defs>
+    </svg>
+    <div class="img-caption">Fig 2 — 3-layer architecture: millions of VTs (parked or running) on top of a few carrier threads on top of OS threads.</div>
+  </div>
+
+  <!-- ═══════════════════════════════ SECTION 4 ═══════════════════════════════ -->
+  <h2>How It Works: Mount &amp; Unmount</h2>
+
+  <p>
+    The magic is in the <strong>mount/unmount lifecycle</strong>. A virtual thread only occupies a
+    carrier thread when it's actually executing CPU instructions. The moment it hits a blocking
+    operation — a DB query, a network call, even a <code>Thread.sleep()</code> — the JVM
+    <em>parks</em> it as a lightweight heap object (a few KB) and frees the carrier for other work.
+  </p>
+
+  <!-- IMAGE 3 -->
+  <div class="img-block">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 380" font-family="Segoe UI, Arial, sans-serif">
+      <rect width="860" height="380" fill="#0f1117" rx="16"/>
+      <text x="430" y="36" text-anchor="middle" font-size="18" font-weight="bold" fill="#e2e8f0">Virtual Thread: Mount / Unmount Lifecycle</text>
+      <text x="430" y="57" text-anchor="middle" font-size="13" fill="#94a3b8">Carrier thread is freed the moment a virtual thread blocks — then reassigned</text>
+      <line x1="60" y1="200" x2="800" y2="200" stroke="#334155" stroke-width="2"/>
+      <polygon points="800,194 814,200 800,206" fill="#475569"/>
+      <text x="820" y="204" font-size="11" fill="#64748b">time</text>
+      <rect x="60" y="160" width="120" height="80" rx="8" fill="#1e3a5f" stroke="#3b82f6" stroke-width="2"/>
+      <text x="120" y="186" text-anchor="middle" font-size="11" font-weight="bold" fill="#93c5fd">CPU Work</text>
+      <text x="120" y="202" text-anchor="middle" font-size="10" fill="#60a5fa">Mounted on</text>
+      <text x="120" y="216" text-anchor="middle" font-size="10" fill="#60a5fa">Carrier T-1</text>
+      <text x="120" y="232" text-anchor="middle" font-size="9" fill="#3b82f6">~5ms</text>
+      <text x="120" y="148" text-anchor="middle" font-size="10" fill="#22c55e">▲ Carrier T-1 active</text>
+      <line x1="180" y1="180" x2="242" y2="148" stroke="#f97316" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#ao3)"/>
+      <text x="210" y="162" text-anchor="middle" font-size="10" fill="#f97316">unmount</text>
+      <rect x="242" y="140" width="150" height="44" rx="8" fill="#1c1c1c" stroke="#6b7280" stroke-width="1.5" stroke-dasharray="5,3"/>
+      <text x="317" y="160" text-anchor="middle" font-size="11" font-weight="bold" fill="#9ca3af">Parked on Heap</text>
+      <text x="317" y="176" text-anchor="middle" font-size="10" fill="#6b7280">waiting for DB… 200ms</text>
+      <text x="317" y="230" text-anchor="middle" font-size="10" fill="#22c55e">Carrier T-1 freed → runs other VTs</text>
+      <line x1="317" y1="218" x2="317" y2="200" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <rect x="250" y="252" width="130" height="32" rx="6" fill="#14532d" stroke="#22c55e" stroke-width="1"/>
+      <text x="315" y="266" text-anchor="middle" font-size="10" fill="#86efac">Carrier T-1 now runs</text>
+      <text x="315" y="279" text-anchor="middle" font-size="10" fill="#4ade80">VT-42, VT-99, VT-200…</text>
+      <line x1="392" y1="148" x2="452" y2="175" stroke="#3b82f6" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#ab3)"/>
+      <text x="420" y="155" text-anchor="middle" font-size="10" fill="#60a5fa">re-mount</text>
+      <text x="420" y="167" text-anchor="middle" font-size="9" fill="#60a5fa">(any carrier)</text>
+      <rect x="452" y="160" width="120" height="80" rx="8" fill="#1e3a5f" stroke="#3b82f6" stroke-width="2"/>
+      <text x="512" y="186" text-anchor="middle" font-size="11" font-weight="bold" fill="#93c5fd">CPU Work</text>
+      <text x="512" y="202" text-anchor="middle" font-size="10" fill="#60a5fa">Re-mounted on</text>
+      <text x="512" y="216" text-anchor="middle" font-size="10" fill="#60a5fa">Carrier T-3</text>
+      <text x="512" y="232" text-anchor="middle" font-size="9" fill="#3b82f6">~2ms</text>
+      <text x="512" y="148" text-anchor="middle" font-size="10" fill="#22c55e">▲ Carrier T-3 active</text>
+      <line x1="572" y1="180" x2="632" y2="148" stroke="#f97316" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#ao3)"/>
+      <text x="605" y="162" text-anchor="middle" font-size="10" fill="#f97316">unmount</text>
+      <rect x="632" y="140" width="110" height="44" rx="8" fill="#1c1c1c" stroke="#6b7280" stroke-width="1.5" stroke-dasharray="5,3"/>
+      <text x="687" y="160" text-anchor="middle" font-size="11" font-weight="bold" fill="#9ca3af">Parked Again</text>
+      <text x="687" y="176" text-anchor="middle" font-size="10" fill="#6b7280">waiting API…</text>
+      <rect x="742" y="160" width="50" height="44" rx="8" fill="#14532d" stroke="#22c55e" stroke-width="2"/>
+      <text x="767" y="178" text-anchor="middle" font-size="9" font-weight="bold" fill="#86efac">Done</text>
+      <text x="767" y="192" text-anchor="middle" font-size="8" fill="#4ade80">✓</text>
+      <rect x="60" y="310" width="740" height="52" rx="10" fill="#1e1b4b" stroke="#6366f1" stroke-width="1.5"/>
+      <text x="430" y="330" text-anchor="middle" font-size="12" font-weight="bold" fill="#a5b4fc">🔑 Key Insight</text>
+      <text x="430" y="350" text-anchor="middle" font-size="11" fill="#818cf8">The virtual thread may re-mount on a DIFFERENT carrier after unparking — the JVM picks any available carrier.</text>
+      <defs>
+        <marker id="ao3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#f97316"/></marker>
+        <marker id="ab3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#3b82f6"/></marker>
+      </defs>
+    </svg>
+    <div class="img-caption">Fig 3 — Mount/unmount lifecycle. The carrier is freed every time the VT parks, and the VT may resume on a completely different carrier thread.</div>
+  </div>
+
+  <!-- ═══════════════════════════════ SECTION 5 ═══════════════════════════════ -->
+  <h2>Creating Virtual Threads: 4 Ways</h2>
+
+  <p>Java 21 gives you four APIs to create virtual threads. Each has its use case.</p>
+
+  <h3>Method 1 — <code>Thread.startVirtualThread()</code></h3>
+  <p>The simplest, one-liner approach for quick tasks:</p>
+
+  <pre><code><span class="kw">Runnable</span> task = () -> {
+    Thread ct = Thread.currentThread();
+    System.out.println(<span class="st">"Thread: "</span> + ct);
+    System.out.println(<span class="st">"Is virtual? "</span> + ct.<span class="fn">isVirtual</span>()); <span class="cm">// true</span>
+};
+
+Thread vt = Thread.<span class="fn">startVirtualThread</span>(task);
+vt.<span class="fn">join</span>(); <span class="cm">// wait for it to finish</span></code></pre>
+
+  <h3>Method 2 — <code>Executors.newVirtualThreadPerTaskExecutor()</code> <span style="color:#4ade80;font-size:13px">★ Recommended</span></h3>
+  <p>The idiomatic, production-friendly approach. Creates a fresh virtual thread per submitted task:</p>
+
+  <pre><code><span class="kw">try</span> (<span class="kw">var</span> executor = Executors.<span class="fn">newVirtualThreadPerTaskExecutor</span>()) {
+
+    List&lt;Future&lt;?&gt;&gt; futures = <span class="kw">new</span> ArrayList&lt;&gt;();
+
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; <span class="nm">10_000</span>; i++) {
+        <span class="kw">final int</span> idx = i;
+        futures.add(executor.<span class="fn">submit</span>(() -> <span class="fn">processTask</span>(idx)));
+    }
+
+    <span class="kw">for</span> (Future&lt;?&gt; f : futures) {
+        f.<span class="fn">get</span>(); <span class="cm">// wait for each</span>
+    }
+} <span class="cm">// try-with-resources shuts down executor cleanly</span></code></pre>
+
+  <h3>Method 3 — Named Factory with <code>Thread.ofVirtual()</code></h3>
+  <p>When you need naming for observability and debugging:</p>
+
+  <pre><code>ThreadFactory factory = Thread.<span class="fn">ofVirtual</span>()
+        .<span class="fn">name</span>(<span class="st">"vt-"</span>, <span class="nm">0</span>)   <span class="cm">// → vt-0, vt-1, vt-2 ...</span>
+        .<span class="fn">factory</span>();
+
+<span class="kw">try</span> (<span class="kw">var</span> exec = Executors.<span class="fn">newThreadPerTaskExecutor</span>(factory)) {
+    <span class="cm">// each task gets a named virtual thread</span>
+}</code></pre>
+
+  <h3>Method 4 — Direct <code>Thread.ofVirtual().start()</code></h3>
+  <p>Explicit control with optional naming — great for learning and quick experiments:</p>
+
+  <pre><code>Thread.<span class="fn">ofVirtual</span>()
+    .<span class="fn">name</span>(<span class="st">"vt-"</span>, i)
+    .<span class="fn">start</span>(() -> {
+        Thread ct = Thread.currentThread();
+        System.out.println(ct + <span class="st">" | isVirtual="</span> + ct.<span class="fn">isVirtual</span>()); <span class="cm">// true</span>
+    });</code></pre>
+
+  <div class="callout tip">
+    💡 <strong>Tip:</strong> Always use <code>try-with-resources</code> on executors — it calls
+    <code>shutdown()</code> and waits for all tasks to complete automatically.
+  </div>
+
+  <!-- ═══════════════════════════════ SECTION 6 ═══════════════════════════════ -->
+  <h2>The Benchmark: Numbers Don't Lie</h2>
+
+  <p>
+    Here's where things get interesting. Let's compare platform threads vs virtual threads on a
+    realistic <strong>mixed workload</strong> — some CPU computation (sum of primes) followed by
+    a blocking I/O simulation via <code>Thread.sleep(10ms)</code>.
+  </p>
+
+  <pre><code><span class="kw">private static void</span> <span class="fn">processTask</span>(<span class="kw">int</span> taskId) {
+    <span class="cm">// ① CPU work: compute sum of primes up to a random limit</span>
+    <span class="kw">int</span> limit = RANDOM.<span class="fn">nextInt</span>(<span class="nm">5000</span>) + <span class="nm">1000</span>;
+    <span class="kw">int</span> primeSum = <span class="fn">calculateSumOfPrimes</span>(limit);
+
+    <span class="cm">// ② Blocking I/O simulation</span>
+    Thread.<span class="fn">sleep</span>(IO_SLEEP_MS); <span class="cm">// 10ms</span>
+}
+
+<span class="cm">// Platform threads — fixed pool of CPU cores</span>
+<span class="kw">try</span> (ExecutorService pool = Executors.<span class="fn">newFixedThreadPool</span>(POOL_SIZE)) {
+    <span class="cm">// submit 10,000 tasks</span>
+}
+
+<span class="cm">// Virtual threads — one thread per task</span>
+<span class="kw">try</span> (ExecutorService exec = Executors.<span class="fn">newVirtualThreadPerTaskExecutor</span>()) {
+    <span class="cm">// submit 100,000 tasks (10× more!)</span>
+}</code></pre>
+
+  <!-- IMAGE 4 -->
+  <div class="img-block">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 460" font-family="Segoe UI, Arial, sans-serif">
+      <rect width="860" height="460" fill="#0f1117" rx="16"/>
+      <text x="430" y="36" text-anchor="middle" font-size="18" font-weight="bold" fill="#e2e8f0">Benchmark: Platform Threads vs Virtual Threads</text>
+      <text x="430" y="57" text-anchor="middle" font-size="13" fill="#94a3b8">Mixed workload: CPU (sum of primes) + 10ms blocking I/O per task</text>
+      <line x1="120" y1="80" x2="120" y2="360" stroke="#334155" stroke-width="1.5"/>
+      <line x1="120" y1="360" x2="780" y2="360" stroke="#334155" stroke-width="1.5"/>
+      <text x="30" y="230" text-anchor="middle" font-size="12" fill="#94a3b8" transform="rotate(-90 30 230)">Time (seconds)</text>
+      <line x1="115" y1="360" x2="780" y2="360" stroke="#1e293b" stroke-width="1"/>
+      <text x="110" y="364" text-anchor="end" font-size="11" fill="#64748b">0</text>
+      <line x1="115" y1="300" x2="780" y2="300" stroke="#1e293b" stroke-width="1"/>
+      <text x="110" y="304" text-anchor="end" font-size="11" fill="#64748b">60</text>
+      <line x1="115" y1="240" x2="780" y2="240" stroke="#1e293b" stroke-width="1"/>
+      <text x="110" y="244" text-anchor="end" font-size="11" fill="#64748b">120</text>
+      <line x1="115" y1="180" x2="780" y2="180" stroke="#1e293b" stroke-width="1"/>
+      <text x="110" y="184" text-anchor="end" font-size="11" fill="#64748b">180</text>
+      <line x1="115" y1="120" x2="780" y2="120" stroke="#1e293b" stroke-width="1"/>
+      <text x="110" y="124" text-anchor="end" font-size="11" fill="#64748b">240</text>
+      <line x1="115" y1="80" x2="780" y2="80" stroke="#1e293b" stroke-width="1"/>
+      <text x="110" y="84" text-anchor="end" font-size="11" fill="#64748b">300s</text>
+      <text x="265" y="385" text-anchor="middle" font-size="12" font-weight="bold" fill="#cbd5e1">10,000 Tasks</text>
+      <rect x="160" y="312" width="80" height="48" rx="4" fill="#f97316" opacity="0.9"/>
+      <text x="200" y="308" text-anchor="middle" font-size="11" font-weight="bold" fill="#fed7aa">51s</text>
+      <rect x="280" y="356" width="80" height="4" rx="2" fill="#22c55e" opacity="0.9"/>
+      <text x="320" y="350" text-anchor="middle" font-size="11" font-weight="bold" fill="#86efac">&lt;1s</text>
+      <text x="590" y="385" text-anchor="middle" font-size="12" font-weight="bold" fill="#cbd5e1">100,000 Tasks</text>
+      <rect x="480" y="80" width="80" height="280" rx="4" fill="#f97316" opacity="0.9"/>
+      <polyline points="480,80 500,68 520,80 540,68 560,80" fill="none" stroke="#f97316" stroke-width="2"/>
+      <text x="520" y="58" text-anchor="middle" font-size="11" font-weight="bold" fill="#fed7aa">~480s</text>
+      <text x="520" y="71" text-anchor="middle" font-size="9" fill="#fb923c">(8 min+)</text>
+      <rect x="600" y="304" width="80" height="56" rx="4" fill="#22c55e" opacity="0.9"/>
+      <text x="640" y="298" text-anchor="middle" font-size="11" font-weight="bold" fill="#86efac">~60s</text>
+      <text x="200" y="400" text-anchor="middle" font-size="10" fill="#f97316">Platform</text>
+      <text x="200" y="412" text-anchor="middle" font-size="10" fill="#f97316">Threads</text>
+      <text x="320" y="400" text-anchor="middle" font-size="10" fill="#22c55e">Virtual</text>
+      <text x="320" y="412" text-anchor="middle" font-size="10" fill="#22c55e">Threads</text>
+      <text x="520" y="400" text-anchor="middle" font-size="10" fill="#f97316">Platform</text>
+      <text x="520" y="412" text-anchor="middle" font-size="10" fill="#f97316">Threads</text>
+      <text x="640" y="400" text-anchor="middle" font-size="10" fill="#22c55e">Virtual</text>
+      <text x="640" y="412" text-anchor="middle" font-size="10" fill="#22c55e">Threads</text>
+      <rect x="660" y="88" width="14" height="14" rx="3" fill="#f97316"/>
+      <text x="680" y="100" font-size="11" fill="#fed7aa">Platform Threads (fixed pool = CPU cores)</text>
+      <rect x="660" y="110" width="14" height="14" rx="3" fill="#22c55e"/>
+      <text x="680" y="122" font-size="11" fill="#86efac">Virtual Threads (newVirtualThreadPerTaskExecutor)</text>
+      <rect x="130" y="418" width="590" height="32" rx="8" fill="#1e1b4b" stroke="#6366f1" stroke-width="1.5"/>
+      <text x="425" y="431" text-anchor="middle" font-size="11" fill="#a5b4fc">Speedup: </text>
+      <text x="510" y="431" text-anchor="middle" font-size="11" font-weight="bold" fill="#818cf8">10,000 tasks → ~51× faster   |   100,000 tasks → ~8× faster</text>
+      <text x="425" y="444" text-anchor="middle" font-size="10" fill="#6366f1">Platform pool size = Runtime.getRuntime().availableProcessors()</text>
+    </svg>
+    <div class="img-caption">Fig 4 — Benchmark results. Virtual threads finish 10,000 I/O-bound tasks in under 1 second vs 51 seconds for a platform thread pool.</div>
+  </div>
+
+  <p>The math behind why platform threads are slow is straightforward:</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Approach</th>
+          <th>Tasks</th>
+          <th>Pool Size</th>
+          <th>Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Platform Threads</td>
+          <td>10,000</td>
+          <td>= CPU cores</td>
+          <td class="orange">~51 seconds</td>
+        </tr>
+        <tr>
+          <td>Virtual Threads</td>
+          <td>10,000</td>
+          <td>N/A (one per task)</td>
+          <td class="green">&lt; 1 second</td>
+        </tr>
+        <tr>
+          <td>Platform Threads</td>
+          <td>100,000</td>
+          <td>= CPU cores</td>
+          <td class="orange">~8 minutes</td>
+        </tr>
+        <tr>
+          <td>Virtual Threads</td>
+          <td>100,000</td>
+          <td>N/A (one per task)</td>
+          <td class="green">~60 seconds</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout info">
+    📐 <strong>The math:</strong> With 8 CPU cores and 10,000 tasks each sleeping 10ms:<br>
+    <code>(10,000 tasks ÷ 8 threads) × 10ms ≈ 12,500ms ≈ 12 seconds</code> (best case, no overhead).
+    Virtual threads park during the sleep, so thousands run "concurrently" with only 8 real carrier threads.
+  </div>
+
+  <!-- ═══════════════════════════════ SECTION 7 ═══════════════════════════════ -->
+  <h2>3 Things You Must Know Before Using Virtual Threads</h2>
+
+  <p>
+    Virtual threads are powerful, but they come with three important gotchas that every developer
+    must understand before shipping to production.
+  </p>
+
+  <!-- IMAGE 5 -->
+  <div class="img-block">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 380" font-family="Segoe UI, Arial, sans-serif">
+      <rect width="860" height="380" fill="#0f1117" rx="16"/>
+      <text x="430" y="36" text-anchor="middle" font-size="18" font-weight="bold" fill="#e2e8f0">3 Things You Must Know Before Using Virtual Threads</text>
+      <text x="430" y="57" text-anchor="middle" font-size="13" fill="#94a3b8">Avoid these pitfalls to get the full benefit</text>
+      <rect x="30" y="76" width="252" height="280" rx="12" fill="#1e293b" stroke="#f59e0b" stroke-width="1.8"/>
+      <circle cx="70" cy="106" r="18" fill="#f59e0b"/>
+      <text x="70" y="112" text-anchor="middle" font-size="14" font-weight="bold" fill="#0f1117">1</text>
+      <text x="160" y="112" text-anchor="middle" font-size="13" font-weight="bold" fill="#fbbf24">Daemon by Default</text>
+      <text x="156" y="148" text-anchor="middle" font-size="30">👻</text>
+      <text x="156" y="178" text-anchor="middle" font-size="11" fill="#94a3b8">Virtual threads are daemon</text>
+      <text x="156" y="194" text-anchor="middle" font-size="11" fill="#94a3b8">threads. If main exits, they</text>
+      <text x="156" y="210" text-anchor="middle" font-size="11" fill="#94a3b8">die with it — silently.</text>
+      <rect x="46" y="220" width="220" height="50" rx="6" fill="#2d1515" stroke="#ef4444" stroke-width="1"/>
+      <text x="156" y="237" text-anchor="middle" font-size="10" fill="#fca5a5">❌ Thread.ofVirtual()</text>
+      <text x="156" y="252" text-anchor="middle" font-size="10" fill="#fca5a5">     .start(() -&gt; doWork());</text>
+      <text x="156" y="265" text-anchor="middle" font-size="9" fill="#ef4444">// main may exit first!</text>
+      <rect x="46" y="278" width="220" height="64" rx="6" fill="#14532d" stroke="#22c55e" stroke-width="1"/>
+      <text x="156" y="296" text-anchor="middle" font-size="10" fill="#86efac">✅ Use join(), latch.await(),</text>
+      <text x="156" y="311" text-anchor="middle" font-size="10" fill="#86efac">   or executor with shutdown</text>
+      <text x="156" y="326" text-anchor="middle" font-size="10" fill="#4ade80">   to keep main alive</text>
+      <text x="156" y="341" text-anchor="middle" font-size="9" fill="#22c55e">// until all VTs complete</text>
+      <rect x="304" y="76" width="252" height="280" rx="12" fill="#1e293b" stroke="#f59e0b" stroke-width="1.8"/>
+      <circle cx="344" cy="106" r="18" fill="#f59e0b"/>
+      <text x="344" y="112" text-anchor="middle" font-size="14" font-weight="bold" fill="#0f1117">2</text>
+      <text x="430" y="112" text-anchor="middle" font-size="13" font-weight="bold" fill="#fbbf24">Do NOT Pool VTs</text>
+      <text x="430" y="148" text-anchor="middle" font-size="30">🚫</text>
+      <text x="430" y="178" text-anchor="middle" font-size="11" fill="#94a3b8">Pooling virtual threads</text>
+      <text x="430" y="194" text-anchor="middle" font-size="11" fill="#94a3b8">defeats their purpose.</text>
+      <text x="430" y="210" text-anchor="middle" font-size="11" fill="#94a3b8">They're cheap — create freely.</text>
+      <rect x="320" y="220" width="220" height="50" rx="6" fill="#2d1515" stroke="#ef4444" stroke-width="1"/>
+      <text x="430" y="237" text-anchor="middle" font-size="10" fill="#fca5a5">❌ Executors</text>
+      <text x="430" y="252" text-anchor="middle" font-size="10" fill="#fca5a5">   .newFixedThreadPool(200)</text>
+      <text x="430" y="265" text-anchor="middle" font-size="9" fill="#ef4444">// re-introduces queuing</text>
+      <rect x="320" y="278" width="220" height="64" rx="6" fill="#14532d" stroke="#22c55e" stroke-width="1"/>
+      <text x="430" y="296" text-anchor="middle" font-size="10" fill="#86efac">✅ Executors</text>
+      <text x="430" y="311" text-anchor="middle" font-size="10" fill="#86efac">   .newVirtualThreadPerTaskExecutor()</text>
+      <text x="430" y="326" text-anchor="middle" font-size="10" fill="#4ade80">   one VT per task</text>
+      <text x="430" y="341" text-anchor="middle" font-size="9" fill="#22c55e">// JVM handles scheduling</text>
+      <rect x="578" y="76" width="252" height="280" rx="12" fill="#1e293b" stroke="#f59e0b" stroke-width="1.8"/>
+      <circle cx="618" cy="106" r="18" fill="#f59e0b"/>
+      <text x="618" y="112" text-anchor="middle" font-size="14" font-weight="bold" fill="#0f1117">3</text>
+      <text x="704" y="112" text-anchor="middle" font-size="13" font-weight="bold" fill="#fbbf24">Pinning (synchronized)</text>
+      <text x="704" y="148" text-anchor="middle" font-size="30">📌</text>
+      <text x="704" y="178" text-anchor="middle" font-size="11" fill="#94a3b8">In Java 21, blocking inside</text>
+      <text x="704" y="194" text-anchor="middle" font-size="11" fill="#94a3b8">synchronized pins the VT</text>
+      <text x="704" y="210" text-anchor="middle" font-size="11" fill="#94a3b8">to its carrier (can't unmount).</text>
+      <rect x="594" y="220" width="220" height="50" rx="6" fill="#2d1515" stroke="#ef4444" stroke-width="1"/>
+      <text x="704" y="237" text-anchor="middle" font-size="10" fill="#fca5a5">❌ synchronized(lock) {</text>
+      <text x="704" y="252" text-anchor="middle" font-size="10" fill="#fca5a5">   blockingOp(); }</text>
+      <text x="704" y="265" text-anchor="middle" font-size="9" fill="#ef4444">// VT pinned, carrier blocked</text>
+      <rect x="594" y="278" width="220" height="64" rx="6" fill="#14532d" stroke="#22c55e" stroke-width="1"/>
+      <text x="704" y="296" text-anchor="middle" font-size="10" fill="#86efac">✅ ReentrantLock lock =</text>
+      <text x="704" y="311" text-anchor="middle" font-size="10" fill="#86efac">     new ReentrantLock();</text>
+      <text x="704" y="326" text-anchor="middle" font-size="10" fill="#4ade80">   lock.lock(); blockingOp();</text>
+      <text x="704" y="341" text-anchor="middle" font-size="9" fill="#22c55e">// VT can unmount freely</text>
+    </svg>
+    <div class="img-caption">Fig 5 — Three critical pitfalls: daemon lifecycle, no pooling, and synchronized pinning.</div>
+  </div>
+
+  <h3>Pitfall 1 — Virtual Threads Are Daemon Threads</h3>
+  <p>
+    If your <code>main()</code> thread exits before virtual threads finish, they get killed silently.
+    Always ensure the main thread waits:
+  </p>
+
+  <pre><code><span class="cm">// ❌ WRONG — main may exit before VTs are done</span>
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; count; i++) {
+    Thread.<span class="fn">ofVirtual</span>().<span class="fn">start</span>(() -> <span class="fn">doWork</span>());
+}
+
+<span class="cm">// ✅ RIGHT — use CountDownLatch to keep main alive</span>
+CountDownLatch latch = <span class="kw">new</span> <span class="fn">CountDownLatch</span>(count);
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; count; i++) {
+    Thread.<span class="fn">ofVirtual</span>().<span class="fn">start</span>(() -> {
+        <span class="kw">try</span> { <span class="fn">doWork</span>(); }
+        <span class="kw">finally</span> { latch.<span class="fn">countDown</span>(); }
+    });
+}
+latch.<span class="fn">await</span>(); <span class="cm">// main waits here until all VTs complete</span></code></pre>
+
+  <h3>Pitfall 2 — Do NOT Pool Virtual Threads</h3>
+  <p>
+    This is the most common mistake when adopting virtual threads. The whole point is that they are
+    <em>cheap to create</em>. Putting them into a fixed pool re-introduces the very queuing problem
+    you're trying to solve.
+  </p>
+
+  <pre><code><span class="cm">// ❌ WRONG — don't pool virtual threads</span>
+ExecutorService pool = Executors.<span class="fn">newFixedThreadPool</span>(<span class="nm">200</span>);
+
+<span class="cm">// ✅ RIGHT — one virtual thread per task</span>
+ExecutorService exec = Executors.<span class="fn">newVirtualThreadPerTaskExecutor</span>();</code></pre>
+
+  <h3>Pitfall 3 — Pinning with <code>synchronized</code></h3>
+  <p>
+    In Java 21, if a virtual thread enters a <code>synchronized</code> block and then
+    <em>blocks</em> inside it, it becomes <strong>pinned</strong> — the carrier thread cannot
+    be freed. Use <code>ReentrantLock</code> instead:
+  </p>
+
+  <pre><code><span class="cm">// ❌ RISKY in Java 21 — VT gets pinned if it blocks inside synchronized</span>
+<span class="kw">synchronized</span> (lock) {
+    <span class="fn">blockingOperation</span>(); <span class="cm">// carrier thread pinned here</span>
+}
+
+<span class="cm">// ✅ SAFE — VT can unmount freely with ReentrantLock</span>
+ReentrantLock lock = <span class="kw">new</span> <span class="fn">ReentrantLock</span>();
+lock.<span class="fn">lock</span>();
+<span class="kw">try</span> {
+    <span class="fn">blockingOperation</span>(); <span class="cm">// VT parks, carrier is freed</span>
+} <span class="kw">finally</span> {
+    lock.<span class="fn">unlock</span>();
+}</code></pre>
+
+  <div class="callout warn">
+    ⚠️ <strong>Note:</strong> Java 23+ significantly reduces pinning issues with improvements to
+    <code>synchronized</code>. But if you're on Java 21 (the LTS), keep this in mind for
+    high-throughput code paths.
+  </div>
+
+  <!-- ═══════════════════════════════ SECTION 8 ═══════════════════════════════ -->
+  <h2>When to Use Virtual Threads (and When NOT To)</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Use Case</th><th>Virtual Threads?</th><th>Why</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>REST API with DB calls</td>
+          <td class="green">✅ Yes</td>
+          <td>I/O-bound — threads spend most time waiting</td>
+        </tr>
+        <tr>
+          <td>Microservice making outbound HTTP calls</td>
+          <td class="green">✅ Yes</td>
+          <td>High concurrency with lots of blocking waits</td>
+        </tr>
+        <tr>
+          <td>Kafka/RabbitMQ consumer workers</td>
+          <td class="green">✅ Yes</td>
+          <td>Many concurrent tasks with I/O between them</td>
+        </tr>
+        <tr>
+          <td>Image/video processing</td>
+          <td class="orange">❌ No</td>
+          <td>CPU-bound — carrier threads are the bottleneck</td>
+        </tr>
+        <tr>
+          <td>Heavy JSON serialization</td>
+          <td class="orange">❌ No</td>
+          <td>CPU-bound — no blocking means no benefit</td>
+        </tr>
+        <tr>
+          <td>Already using WebFlux/Reactor</td>
+          <td class="orange">⚠️ Maybe</td>
+          <td>You already solved the problem reactively</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ═══════════════════════════════ SECTION 9 ═══════════════════════════════ -->
+  <h2>Real-World Adoption: Spring Boot 3.2+</h2>
+
+  <p>
+    If you're on Spring Boot 3.2+, enabling virtual threads for every request handler is a
+    <strong>single configuration line</strong>:
+  </p>
+
+  <pre><code><span class="cm"># application.properties</span>
+spring.threads.virtual.enabled=<span class="ok">true</span></code></pre>
+
+  <p>
+    That's it. Every incoming HTTP request is handled on a virtual thread. No code changes,
+    no reactive rewrites. Spring takes care of the rest.
+  </p>
+
+  <div class="callout tip">
+    🚀 Combined with Spring Data (JDBC), this alone can dramatically improve throughput on
+    database-heavy REST APIs without touching a single line of business logic.
+  </div>
+
+  <!-- ═══════════════════════════════ SECTION 10 ═══════════════════════════════ -->
+  <h2>Conclusion</h2>
+
+  <p>
+    Virtual threads don't make your code "faster" in the sense of executing more CPU instructions
+    per second. What they do is let you run <strong>vastly more concurrent tasks</strong> without
+    paying the OS thread cost for each one.
+  </p>
+
+  <p>The mental model shift is simple:</p>
+
+  <pre><code><span class="cm">// Old model: threads are expensive</span>
+→ use pools → manage pool sizes → hit bottlenecks → write async code
+
+<span class="cm">// New model: threads are cheap</span>
+→ one per task → let the JVM manage → scale to millions → keep readable blocking code</code></pre>
+
+  <blockquote>
+    If you have an I/O-bound Java application and you're still on Java 8 or 11, upgrading to Java 21
+    and enabling virtual threads may be the highest-ROI change you make this year.
+  </blockquote>
+
+  <hr/>
+
+  <p style="color:#64748b; font-family:'Segoe UI',Arial,sans-serif; font-size:15px;">
+    All code in this article comes from hands-on Java 21 learning — see
+    <code>VirtualThreadBasics.java</code>, <code>TraditionalVsVirtualBenchmark.java</code>,
+    and <code>VirtualThreadsArticleExercise.java</code>.
+    Next up in the series: <strong>Structured Concurrency</strong> and <strong>Scoped Values</strong>.
+  </p>
+
+  <div class="footer">
+    <p>Written by Swapnil &nbsp;·&nbsp; Java 21 Deep Dives Series &nbsp;·&nbsp; March 2026</p>
+    <p style="margin-top:8px">
+      <a href="https://medium.com">Medium</a> &nbsp;·&nbsp;
+      <a href="https://openjdk.org/jeps/444">JEP 444 — Virtual Threads</a>
+    </p>
+  </div>
+
+</article>
+</body>
+</html>
